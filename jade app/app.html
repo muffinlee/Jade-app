@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jade Financial Literacy — 12-Week Programme</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d1b2e">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jade Classroom">
+<style>
+:root {
+  --navy: #0d1b2e;
+  --navy2: #132338;
+  --navy3: #1a3050;
+  --gold: #c9a84c;
+  --gold2: #e2be6e;
+  --teal: #0e9e8e;
+  --teal2: #13b8a6;
+  --purple: #7c3aed;
+  --green: #16a34a;
+  --red: #dc2626;
+  --text: #e8edf4;
+  --muted: #8faabe;
+  --card: #162035;
+  --border: #1e3050;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--navy); color: var(--text); min-height: 100vh; }
+a { color: var(--gold); text-decoration: none; }
+
+/* ─── SCREENS ─── */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ─── LOGIN ─── */
+#loginScreen { align-items: center; justify-content: center; background: linear-gradient(135deg, #0a1520 0%, #0d1b2e 50%, #0a1a10 100%); }
+.login-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 48px 56px; max-width: 460px; width: 90%; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,.5); }
+.login-logo { font-size: 48px; margin-bottom: 12px; }
+.login-box h1 { font-size: 28px; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
+.login-box p { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+.role-btns { display: flex; gap: 12px; margin-bottom: 24px; }
+.role-btn { flex: 1; padding: 16px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; background: var(--navy2); transition: all .2s; }
+.role-btn:hover, .role-btn.selected { border-color: var(--gold); background: rgba(201,168,76,.1); }
+.role-btn .icon { font-size: 28px; margin-bottom: 6px; }
+.role-btn .label { font-size: 13px; font-weight: 600; color: var(--text); }
+.name-row { display: flex; gap: 10px; }
+.name-row input { flex: 1; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--navy2); color: var(--text); font-size: 15px; }
+.name-row input:focus { outline: none; border-color: var(--gold); }
+.btn-primary { padding: 14px 28px; border-radius: 8px; border: none; background: var(--gold); color: #0d1b2e; font-weight: 700; font-size: 15px; cursor: pointer; transition: background .2s; }
+.btn-primary:hover { background: var(--gold2); }
+.btn-secondary { padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; transition: all .2s; }
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ─── MAIN LAYOUT ─── */
+.app-layout { display: flex; flex: 1; height: 100vh; overflow: hidden; }
+.sidebar { width: 220px; min-width: 220px; background: var(--navy2); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
+.main { flex: 1; overflow-y: auto; }
+
+/* ─── HEADER ─── */
+.topbar { background: var(--navy2); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 10; }
+.topbar-logo { font-weight: 800; font-size: 18px; color: var(--gold); flex-shrink: 0; }
+.topbar-title { font-size: 14px; color: var(--muted); flex: 1; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.xp-badge { background: rgba(201,168,76,.15); border: 1px solid var(--gold); border-radius: 20px; padding: 4px 14px; font-size: 13px; font-weight: 600; color: var(--gold); }
+.user-chip { background: var(--navy3); border-radius: 20px; padding: 6px 14px; font-size: 13px; cursor: pointer; }
+.mode-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; font-size: 12px; }
+.mode-btn { padding: 6px 14px; cursor: pointer; transition: background .2s; background: transparent; border: none; color: var(--muted); }
+.mode-btn.active { background: var(--gold); color: #0d1b2e; font-weight: 700; }
+
+/* ─── SIDEBAR ─── */
+.sidebar-section { padding: 16px 12px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.week-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 8px 8px; }
+.week-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: background .15s; color: var(--muted); }
+.week-item:hover { background: var(--navy3); color: var(--text); }
+.week-item.active { background: rgba(201,168,76,.15); color: var(--gold); font-weight: 600; border-left: 3px solid var(--gold); }
+.week-item.completed { color: var(--teal); }
+.week-item.locked { opacity: .4; cursor: not-allowed; }
+.week-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.week-item.completed .week-dot { background: var(--teal); }
+.week-item.active .week-dot { background: var(--gold); }
+.phase-header { padding: 10px 12px 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
+.phase-header.p1 { color: var(--gold); }
+.phase-header.p2 { color: var(--teal); }
+.sidebar-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 8px 16px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: background .15s; color: var(--muted); }
+.nav-item:hover { background: var(--navy3); color: var(--text); }
+.nav-item.active { background: rgba(201,168,76,.15); color: var(--gold); font-weight: 600; }
+
+/* ─── CONTENT PANELS ─── */
+.panel { display: none; padding: 28px 32px; }
+.panel.active { display: block; }
+
+/* ─── CARDS ─── */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; }
+.card h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--gold); }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
+.stat-num { font-size: 36px; font-weight: 800; color: var(--gold); }
+.stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.week-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+.week-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; cursor: pointer; transition: all .2s; text-align: center; }
+.week-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+.week-card.completed { border-color: var(--teal); }
+.week-card.active { border-color: var(--gold); background: rgba(201,168,76,.07); }
+.week-card .wc-num { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.week-card .wc-icon { font-size: 24px; margin-bottom: 6px; }
+.week-card .wc-title { font-size: 11px; font-weight: 600; line-height: 1.3; }
+
+/* ─── LESSON ─── */
+.lesson-header { border-radius: 12px; padding: 28px 32px; margin-bottom: 20px; background: linear-gradient(135deg, var(--navy3), var(--card)); border: 1px solid var(--border); }
+.lesson-header .week-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.lesson-header h1 { font-size: 26px; font-weight: 800; color: var(--gold); margin-bottom: 6px; }
+.lesson-header .hook { font-size: 15px; color: var(--muted); font-style: italic; }
+.phase-pill { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-bottom: 12px; }
+.phase-pill.p1 { background: rgba(201,168,76,.15); color: var(--gold); border: 1px solid var(--gold); }
+.phase-pill.p2 { background: rgba(14,158,142,.15); color: var(--teal); border: 1px solid var(--teal); }
+
+.objectives-list { list-style: none; }
+.objectives-list li { padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; align-items: flex-start; gap: 10px; }
+.objectives-list li:last-child { border-bottom: none; }
+.objectives-list li::before { content: "✓"; color: var(--teal); font-weight: 700; flex-shrink: 0; }
+
+.activity-box { background: rgba(14,158,142,.08); border: 1px solid var(--teal); border-radius: 10px; padding: 18px 22px; margin: 20px 0; }
+.activity-box .act-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--teal); margin-bottom: 8px; }
+.activity-box h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.activity-box p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+.steps-list { counter-reset: step; list-style: none; margin-top: 10px; }
+.steps-list li { counter-increment: step; padding: 8px 0 8px 36px; position: relative; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.steps-list li::before { content: counter(step); position: absolute; left: 0; top: 7px; width: 22px; height: 22px; border-radius: 50%; background: var(--teal); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+/* ─── QUIZ ─── */
+.quiz-section { margin-top: 24px; }
+.quiz-question { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+.quiz-question .q-num { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.quiz-question .q-text { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+.options { display: flex; flex-direction: column; gap: 8px; }
+.opt { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 14px; transition: all .15s; }
+.opt:hover { border-color: var(--gold); background: rgba(201,168,76,.06); }
+.opt.selected { border-color: var(--gold); background: rgba(201,168,76,.12); }
+.opt.correct { border-color: var(--teal); background: rgba(14,158,142,.15); color: var(--teal); }
+.opt.wrong { border-color: var(--red); background: rgba(220,38,38,.1); color: #f87171; }
+.quiz-submit { margin-top: 16px; }
+.quiz-result { margin-top: 20px; padding: 16px 20px; border-radius: 10px; font-weight: 600; font-size: 15px; text-align: center; }
+.quiz-result.pass { background: rgba(14,158,142,.15); border: 1px solid var(--teal); color: var(--teal2); }
+.quiz-result.fail { background: rgba(220,38,38,.1); border: 1px solid var(--red); color: #f87171; }
+
+/* ─── PORTFOLIO ─── */
+.portfolio-header { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.pf-stat { flex: 1; min-width: 140px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; }
+.pf-stat .pfs-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.pf-stat .pfs-val { font-size: 22px; font-weight: 800; }
+.pf-stat .pfs-change { font-size: 12px; margin-top: 2px; }
+.pos-green { color: #4ade80; }
+.pos-red { color: #f87171; }
+.trade-form { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; }
+.trade-form h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+.form-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 12px; color: var(--muted); }
+.form-group select, .form-group input { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--navy2); color: var(--text); font-size: 14px; min-width: 140px; }
+.form-group select:focus, .form-group input:focus { outline: none; border-color: var(--gold); }
+.btn-buy { padding: 10px 24px; border-radius: 8px; border: none; background: var(--green); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; }
+.btn-sell { padding: 10px 24px; border-radius: 8px; border: none; background: var(--red); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; }
+.holdings-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.holdings-table th { padding: 10px 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); border-bottom: 1px solid var(--border); }
+.holdings-table td { padding: 12px 14px; border-bottom: 1px solid rgba(30,48,80,.5); }
+.holdings-table tr:hover td { background: rgba(255,255,255,.02); }
+.trade-log { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; max-height: 200px; overflow-y: auto; }
+.trade-entry { padding: 6px 0; font-size: 13px; border-bottom: 1px solid rgba(30,48,80,.5); color: var(--muted); }
+.trade-entry:last-child { border-bottom: none; }
+
+/* ─── BADGES ─── */
+.badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+.badge-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 14px; text-align: center; transition: all .2s; }
+.badge-item.earned { border-color: var(--gold); background: rgba(201,168,76,.07); }
+.badge-item .badge-icon { font-size: 36px; margin-bottom: 8px; filter: grayscale(1); opacity: .4; }
+.badge-item.earned .badge-icon { filter: none; opacity: 1; }
+.badge-item .badge-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+.badge-item .badge-desc { font-size: 11px; color: var(--muted); }
+
+/* ─── TEACHER DASHBOARD ─── */
+.class-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.class-table th { padding: 10px 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); border-bottom: 1px solid var(--border); }
+.class-table td { padding: 10px 14px; border-bottom: 1px solid rgba(30,48,80,.5); }
+.progress-bar-wrap { background: var(--border); border-radius: 4px; height: 8px; width: 100%; }
+.progress-bar { background: var(--teal); height: 100%; border-radius: 4px; transition: width .4s; }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.tag.green { background: rgba(22,163,74,.2); color: #4ade80; }
+.tag.amber { background: rgba(234,179,8,.2); color: #fbbf24; }
+.tag.red { background: rgba(220,38,38,.2); color: #f87171; }
+
+/* ─── LESSON PLANS (TEACHER) ─── */
+.lesson-plan-box { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; }
+.lp-timing { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.lp-chip { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.lp-chip.gold { background: rgba(201,168,76,.15); color: var(--gold); border: 1px solid rgba(201,168,76,.3); }
+.lp-chip.teal { background: rgba(14,158,142,.15); color: var(--teal); border: 1px solid rgba(14,158,142,.3); }
+.lp-chip.purple { background: rgba(124,58,237,.15); color: #a78bfa; border: 1px solid rgba(124,58,237,.3); }
+
+/* ─── MISC ─── */
+.section-title { font-size: 20px; font-weight: 800; color: var(--gold); margin-bottom: 20px; }
+.sub-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--navy3); border: 1px solid var(--border); color: var(--muted); }
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--teal); color: #fff; padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 14px; z-index: 9999; animation: slideIn .3s ease; max-width: 300px; }
+@keyframes slideIn { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty-state .es-icon { font-size: 48px; margin-bottom: 12px; }
+
+/* ─── MOBILE ─── */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .week-grid { grid-template-columns: repeat(3, 1fr); }
+  .panel { padding: 16px; }
+}
+
+/* ─── IOS INSTALL BANNER ─── */
+#iosInstallBanner {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 10000;
+  background: var(--card);
+  border: 1px solid var(--gold);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.45);
+  animation: slideIn .3s ease;
+}
+#iosInstallBanner .ib-icon { font-size: 26px; flex-shrink: 0; }
+#iosInstallBanner .ib-text { flex: 1; font-size: 13px; line-height: 1.4; color: var(--text); }
+#iosInstallBanner .ib-text b { color: var(--gold); }
+#iosInstallBanner .ib-share { display: inline-block; padding: 1px 7px; border-radius: 5px; background: var(--navy3); border: 1px solid var(--border); font-size: 12px; }
+#iosInstallBanner .ib-close { background: none; border: none; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; padding: 4px; flex-shrink: 0; }
+#iosInstallBanner .ib-close:hover { color: var(--text); }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── Supabase config (set in Netlify env vars, injected at build) ──
+const SUPABASE_URL  = window._env_?.SUPABASE_URL  || 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON = window._env_?.SUPABASE_ANON || 'YOUR_SUPABASE_ANON_KEY';
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// Auth gate: if not logged in and not demo, go to login page
+(async () => {
+  const demo = sessionStorage.getItem('jade_demo');
+  if (demo) return; // demo mode, carry on
+  const { data: { session } } = await _sb.auth.getSession();
+  if (!session) { window.location.href = '/login.html'; }
+})();
+</script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- IOS "ADD TO HOME SCREEN" BANNER -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="iosInstallBanner" style="display:none">
+  <div class="ib-icon">🪙</div>
+  <div class="ib-text">Install <b>Jade Classroom</b> as an app: tap <span class="ib-share">⬆️ Share</span>, then <b>"Add to Home Screen"</b>.</div>
+  <button class="ib-close" onclick="dismissIosInstallBanner()" aria-label="Dismiss">×</button>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- LOGIN SCREEN -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-box">
+    <div class="login-logo">🪙</div>
+    <h1>Jade Financial Literacy</h1>
+    <p>12-Week STEM Programme · Hong Kong Secondary Schools</p>
+    <div class="role-btns">
+      <div class="role-btn" id="roleTeacher" onclick="selectRole('teacher')">
+        <div class="icon">👨‍🏫</div>
+        <div class="label">Teacher</div>
+      </div>
+      <div class="role-btn" id="roleStudent" onclick="selectRole('student')">
+        <div class="icon">🎓</div>
+        <div class="label">Student</div>
+      </div>
+    </div>
+    <div class="name-row" style="margin-bottom:16px">
+      <input type="text" id="nameInput" placeholder="Enter your name…" />
+    </div>
+    <div id="studentClassRow" style="display:none;margin-bottom:16px">
+      <select id="classSelect" style="width:100%;padding:12px 16px;border-radius:8px;border:1px solid var(--border);background:var(--navy2);color:var(--text);font-size:15px">
+        <option value="1A">Class 1A</option><option value="1B">Class 1B</option>
+        <option value="2A">Class 2A</option><option value="2B">Class 2B</option>
+      </select>
+    </div>
+    <button class="btn-primary" style="width:100%" onclick="enterApp()">Enter Platform →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- MAIN APP -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="appScreen" class="screen">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo">🪙 Jade</div>
+    <div class="topbar-title" id="topbarTitle"></div>
+    <div class="topbar-right">
+      <div class="mode-toggle" id="modeToggle" style="display:none">
+        <button class="mode-btn active" id="modeTeacherBtn" onclick="setMode('teacher')">Teacher</button>
+        <button class="mode-btn" id="modeStudentBtn" onclick="setMode('student')">Student</button>
+      </div>
+      <div class="xp-badge" id="xpBadge" style="display:none">⚡ <span id="xpCount">0</span> XP</div>
+      <div class="user-chip" id="userChip" onclick="logout()">← Exit</div>
+    </div>
+  </div>
+
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <!-- teacher nav -->
+      <div id="teacherNav">
+        <div class="sidebar-section">Dashboard</div>
+        <div class="sidebar-nav">
+          <div class="nav-item active" onclick="showTeacherPanel('overview')">📊 Overview</div>
+          <div class="nav-item" onclick="showTeacherPanel('class')">👥 Class Roster</div>
+          <div class="nav-item" onclick="showTeacherPanel('lessons')">📋 Lesson Plans</div>
+        </div>
+        <div class="phase-header p1">PHASE 1 — Weeks 1–6</div>
+        <div class="week-nav" id="teacherWeekNav1"></div>
+        <div class="phase-header p2">PHASE 2 — Weeks 7–12</div>
+        <div class="week-nav" id="teacherWeekNav2"></div>
+      </div>
+      <!-- student nav -->
+      <div id="studentNav" style="display:none">
+        <div class="sidebar-section">My Learning</div>
+        <div class="sidebar-nav">
+          <div class="nav-item active" onclick="showStudentPanel('home')">🏠 Home</div>
+          <div class="nav-item" onclick="showStudentPanel('portfolio')">📈 My Portfolio</div>
+          <div class="nav-item" onclick="showStudentPanel('badges')">🏅 Badges</div>
+        </div>
+        <div class="phase-header p1">PHASE 1 — Weeks 1–6</div>
+        <div class="week-nav" id="studentWeekNav1"></div>
+        <div class="phase-header p2">PHASE 2 — Weeks 7–12</div>
+        <div class="week-nav" id="studentWeekNav2"></div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+      <!-- ── TEACHER PANELS ── -->
+      <div id="teacherPanels">
+        <div class="panel active" id="tp-overview">
+          <div class="section-title">Programme Overview</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px">
+            <div class="stat-card"><div class="stat-num" id="t-totalStudents">0</div><div class="stat-label">Students Enrolled</div></div>
+            <div class="stat-card"><div class="stat-num" id="t-avgProgress">0%</div><div class="stat-label">Avg. Programme Progress</div></div>
+            <div class="stat-card"><div class="stat-num" id="t-avgXP">0</div><div class="stat-label">Average XP</div></div>
+            <div class="stat-card"><div class="stat-num" id="t-quizPass">0%</div><div class="stat-label">Quiz Pass Rate</div></div>
+          </div>
+          <div class="sub-title">12-Week Programme Map</div>
+          <div class="week-grid" id="teacherWeekGrid"></div>
+        </div>
+
+        <div class="panel" id="tp-class">
+          <div class="section-title">Class Roster</div>
+          <div class="card">
+            <table class="class-table">
+              <thead><tr><th>Student</th><th>Class</th><th>Week</th><th>XP</th><th>Portfolio</th><th>Progress</th><th>Status</th></tr></thead>
+              <tbody id="classTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel" id="tp-lessons">
+          <div class="section-title">Ready-Made Lesson Plans</div>
+          <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Click any week to view the full lesson plan, activity sheets, and discussion questions.</p>
+          <div id="lessonPlansList"></div>
+        </div>
+
+        <div class="panel" id="tp-week"><!-- dynamically filled --></div>
+      </div>
+
+      <!-- ── STUDENT PANELS ── -->
+      <div id="studentPanels" style="display:none">
+        <div class="panel active" id="sp-home">
+          <div class="section-title" id="studentWelcome">Welcome back!</div>
+          <div id="certBanner" style="display:none;background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));border:1px solid var(--gold);border-radius:12px;padding:20px 24px;margin-bottom:20px;align-items:center;justify-content:space-between;gap:16px">
+            <div>
+              <div style="font-size:18px;font-weight:800;color:var(--gold);margin-bottom:4px">🎓 Congratulations! You've completed all 12 weeks.</div>
+              <div style="font-size:13px;color:var(--muted)">Your Jade Foundations Certificate is ready to download.</div>
+            </div>
+            <button class="btn-primary" onclick="generateCertificate()" style="white-space:nowrap;flex-shrink:0">📜 Get Certificate</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px">
+            <div class="stat-card"><div class="stat-num pos-green" id="s-xp">0</div><div class="stat-label">Total XP Earned</div></div>
+            <div class="stat-card"><div class="stat-num" id="s-week">1</div><div class="stat-label">Current Week</div></div>
+            <div class="stat-card"><div class="stat-num" id="s-badges">0</div><div class="stat-label">Badges Earned</div></div>
+          </div>
+          <div class="sub-title">Your 12-Week Journey</div>
+          <div class="week-grid" id="studentWeekGrid"></div>
+        </div>
+
+        <div class="panel" id="sp-portfolio">
+          <div class="section-title">📈 My Virtual Portfolio</div>
+          <p style="color:var(--muted);font-size:13px;margin-bottom:20px">You start with a virtual HK$100,000. Practice trading HKEX-listed stocks with no real risk.</p>
+          <div class="portfolio-header">
+            <div class="pf-stat"><div class="pfs-label">Total Portfolio Value</div><div class="pfs-val" id="pf-total">HK$100,000</div><div class="pfs-change" id="pf-change">+HK$0 (0.00%)</div></div>
+            <div class="pf-stat"><div class="pfs-label">Cash Available</div><div class="pfs-val" id="pf-cash">HK$100,000</div></div>
+            <div class="pf-stat"><div class="pfs-label">Holdings Value</div><div class="pfs-val" id="pf-holdings-val">HK$0</div></div>
+          </div>
+
+          <div class="trade-form">
+            <h3>Place a Trade</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Stock</label>
+                <select id="tradeStock">
+                  <option value="0700.HK">0700.HK — Tencent (HK$330)</option>
+                  <option value="0005.HK">0005.HK — HSBC (HK$62)</option>
+                  <option value="2800.HK">2800.HK — Tracker Fund ETF (HK$21)</option>
+                  <option value="0941.HK">0941.HK — China Mobile (HK$78)</option>
+                  <option value="0388.HK">0388.HK — HKEX (HK$290)</option>
+                  <option value="1211.HK">1211.HK — BYD (HK$28)</option>
+                  <option value="0016.HK">0016.HK — SHK Properties (HK$88)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Shares</label>
+                <input type="number" id="tradeQty" value="100" min="1" style="width:100px">
+              </div>
+              <button class="btn-buy" onclick="executeTrade('buy')">BUY</button>
+              <button class="btn-sell" onclick="executeTrade('sell')">SELL</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>My Holdings</h3>
+            <table class="holdings-table" id="holdingsTable">
+              <thead><tr><th>Stock</th><th>Shares</th><th>Avg Price</th><th>Curr Price</th><th>Value</th><th>P&L</th></tr></thead>
+              <tbody id="holdingsBody"></tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <h3>Trade History</h3>
+            <div class="trade-log" id="tradeLog"><div class="empty-state" style="padding:20px"><div class="es-icon">📋</div>No trades yet. Place your first trade above.</div></div>
+          </div>
+        </div>
+
+        <div class="panel" id="sp-badges">
+          <div class="section-title">🏅 My Badges</div>
+          <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Earn badges by completing lessons, quizzes, and challenges.</p>
+          <div class="badges-grid" id="badgesGrid"></div>
+        </div>
+
+        <div class="panel" id="sp-week"><!-- dynamically filled --></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATA — ALL 12 WEEKS
+// ══════════════════════════════════════════════════
+const WEEKS = [
+  {
+    id:1, phase:1, icon:"💰", title:"Budgeting & Saving",
+    videos:[
+      {day:1, title:"Where Does Your Money Go?",        src:"https://www.youtube.com/watch?v=7eLoqYIUUCw"},
+      {day:2, title:"The 50/30/20 Rule",                src:"https://www.youtube.com/watch?v=9F-T2IspIZk"},
+      {day:3, title:"Your Octopus Card as a Budget Tool",src:"https://www.youtube.com/watch?v=oCqIzhq_KgY"},
+      {day:4, title:"Setting Your First Savings Goal",   src:"https://www.youtube.com/watch?v=oxNnPjqBV8Q"},
+      {day:5, title:"Week 1 Recap",                     src:"https://www.youtube.com/watch?v=c0msvFg7hiU"}
+    ],
+    hook:"Where does your $50/day actually go?",
+    objectives:["Define income vs. expense and calculate net cash flow","Apply the 50/30/20 rule adapted for HK teens","Build a personal budget using your own Octopus spending history","Set a real saving goal: MTR pass, AirPods, or first investment"],
+    concepts:[
+      {term:"Income",def:"Money coming IN — allowance, part-time pay, red packets"},
+      {term:"Expense",def:"Money going OUT — food, transport, shopping"},
+      {term:"50/30/20 Rule",def:"50% needs, 30% wants, 20% savings. For teens: try 60/20/20"},
+      {term:"Opportunity Cost",def:"What you give up when you choose one thing over another"},
+      {term:"Saving Goal",def:"A specific target: 'Save HK$1,200 in 3 months for AirPods'"}
+    ],
+    activity:{
+      title:"Octopus Spending Audit",
+      desc:"Use your Octopus top-up history (check the app) to track your spending for one week.",
+      steps:["Open the Octopus app and screenshot your last 30 transactions","Categorise each: Food / Transport / Shopping / Other","Total each category — does the breakdown surprise you?","Using your weekly allowance, apply the 50/30/20 rule","Calculate: how long to save for ONE real goal?"]
+    },
+    discussion:["If you earned HK$500 extra, would you save or spend it — and why?","Why do most people know their income but not their expenses?","What's one thing you spend money on that you actually don't need?"],
+    quiz:[
+      {q:"The 50/30/20 rule means you save…",opts:["50% of income","20% of income","30% of income","All remaining income after expenses"],ans:1},
+      {q:"Opportunity cost is best described as…",opts:["The cost of a missed investment","What you give up when making a choice","The interest on a loan","The tax on your salary"],ans:1},
+      {q:"If your monthly allowance is HK$1,200 and you apply the 50/30/20 rule, how much should you save?",opts:["HK$600","HK$360","HK$240","HK$120"],ans:2},
+      {q:"Which of these is an EXPENSE (not income)?",opts:["Allowance from parents","Red packet money","Lunch at school canteen","Part-time job pay"],ans:2},
+      {q:"A budget is best described as…",opts:["A record of past spending only","A plan for how to use your money in advance","A type of bank account","A government tax form"],ans:1},
+      {q:"Which of these is a WANT, not a need?",opts:["School uniform","Bus fare to school","Bubble tea with friends","Textbooks for class"],ans:2},
+      {q:"If you save HK$300 every month for 12 months, how much do you have?",opts:["HK$1,200","HK$2,400","HK$3,600","HK$4,800"],ans:2},
+      {q:"Your Octopus card is useful for budgeting because…",opts:["It earns interest on your balance","Every transaction is automatically recorded","It gives you a credit limit","It converts currencies automatically"],ans:1},
+      {q:"Which savings goal is written BEST?",opts:["Save more money","Save some money soon","Save HK$5,000 for a Japan trip by August","Put money aside when I can"],ans:2},
+      {q:"Under 50/30/20, if needs cost HK$1,000 and wants cost HK$600, what is the implied monthly income?",opts:["HK$1,600","HK$2,000","HK$3,000","HK$4,000"],ans:2}
+    ]
+  },
+  {
+    id:2, phase:1, icon:"💳", title:"Credit, Debt & APR",
+    videos:[
+      {day:1, title:"Day 1", src:"https://www.youtube.com/watch?v=rc85AdyroCM"},
+      {day:2, title:"Day 2", src:"https://www.youtube.com/watch?v=Bi5mHAa-gdY"},
+      {day:3, title:"Day 3", src:"https://www.youtube.com/watch?v=vAAVTI3tUPM"},
+      {day:4, title:"Day 4", src:"https://www.youtube.com/watch?v=Khl7YgvSMyo"},
+      {day:5, title:"Day 5", src:"https://www.youtube.com/watch?v=Br9dZYXjeME"}
+    ],
+    hook:"If I buy a phone on installments, how much do I really pay?",
+    objectives:["Distinguish between good debt and bad debt with real HK examples","Explain how credit cards work and why the minimum payment trap is dangerous","Calculate APR and total repayment cost step by step","Identify HK youth loan traps: BNPL, buy-now-pay-later apps"],
+    concepts:[
+      {term:"APR",def:"Annual Percentage Rate — the true yearly cost of borrowing, including all fees"},
+      {term:"Good Debt",def:"Borrowing to build future value, e.g. education, mortgage at low rate"},
+      {term:"Bad Debt",def:"Borrowing to consume things that lose value, e.g. credit card for shopping"},
+      {term:"Minimum Payment Trap",def:"Paying only the minimum each month means you pay 3x+ the original price"},
+      {term:"BNPL",def:"Buy Now Pay Later — looks free but hidden fees hit if you miss a payment"}
+    ],
+    activity:{
+      title:"Phone Installment Calculator",
+      desc:"A HK$7,999 smartphone on 24-month installment at 24% APR. How much do you actually pay?",
+      steps:["Monthly payment ≈ HK$7,999 × (0.24/12) / (1 − (1+0.24/12)^−24)","Calculate total paid over 24 months","Calculate total interest paid","Compare: what if you saved for 8 months instead?","Discuss: is 24% APR typical in HK? (Research HK credit card rates)"]
+    },
+    discussion:["Why do credit card companies advertise minimum payments?","What is ONE debt that might actually be worth taking on at age 18?","How would you explain APR to a younger sibling?"],
+    quiz:[
+      {q:"APR stands for…",opts:["Annual Purchase Rate","Annual Percentage Rate","Applied Payment Ratio","Actual Profit Return"],ans:1},
+      {q:"Which is an example of GOOD debt?",opts:["Credit card used for a holiday","BNPL for new trainers","Student loan for a degree in engineering","Loan to buy the latest gaming console"],ans:2},
+      {q:"The 'minimum payment trap' is dangerous because…",opts:["It improves your credit score","You end up paying much more than the original amount","It reduces your APR automatically","It cancels your debt faster"],ans:1},
+      {q:"If you borrow HK$10,000 at 36% APR, your yearly interest charge is approximately…",opts:["HK$360","HK$3,600","HK$1,000","HK$10,360"],ans:1},
+      {q:"BNPL (Buy Now Pay Later) is risky mainly because…",opts:["It always charges 50% interest","Hidden fees can apply if you miss a payment","It requires a credit check every time","It can only be used in HK"],ans:1},
+      {q:"A credit card with 3% monthly interest has an APR of approximately…",opts:["3%","12%","18%","36%"],ans:3},
+      {q:"Which scenario describes BAD debt?",opts:["A mortgage at a low fixed rate","A business loan to expand a profitable shop","A credit card balance from an overseas holiday","A student loan to study medicine"],ans:2},
+      {q:"You borrow HK$5,000 on a credit card at 36% APR and make NO payments for 1 year. You owe approximately…",opts:["HK$5,180","HK$5,500","HK$6,800","HK$8,000"],ans:2},
+      {q:"The safest way to use a credit card is to…",opts:["Always pay the minimum each month","Pay the full balance before the due date","Only use it for emergencies","Keep the balance below 90% of the limit"],ans:1},
+      {q:"Which of these would help you avoid the minimum payment trap?",opts:["Setting up autopay for the minimum amount","Ignoring your statement","Setting up autopay for the FULL balance","Increasing your credit limit"],ans:2}
+    ]
+  },
+  {
+    id:3, phase:1, icon:"🏦", title:"MPF — Your First Investment",
+    videos:[
+      {day:1, title:"Day 1", src:"https://www.youtube.com/watch?v=61zR4Chx5mU"},
+      {day:2, title:"Day 2", src:"https://www.youtube.com/watch?v=z0KxdTyfjvY"},
+      {day:3, title:"Day 3", src:"https://www.youtube.com/watch?v=viNt7jKD0Qw"},
+      {day:4, title:"Day 4", src:"https://www.youtube.com/watch?v=Ehk3AAWbkOc"},
+      {day:5, title:"Day 5", src:"https://www.youtube.com/watch?v=lxYYyJQtaTY"}
+    ],
+    hook:"Your first salary will include MPF. Let's understand it.",
+    objectives:["Define Mandatory Provident Fund and explain why it exists in HK","Calculate employer and employee contribution amounts","Compare MPF fund types: conservative vs equity","Use compound growth to model HK$500/month from age 16 to age 65"],
+    concepts:[
+      {term:"MPF",def:"Mandatory Provident Fund — HK's compulsory retirement savings scheme"},
+      {term:"Contribution",def:"Employee pays 5% of salary; employer also contributes 5%"},
+      {term:"Conservative Fund",def:"Low risk, low return (~1-2%/year). Capital preservation focus"},
+      {term:"Equity Fund",def:"Higher risk, higher potential return (~6-8%/year). Invests in stocks"},
+      {term:"Compound Growth",def:"Earning returns on your returns. Einstein called it the 8th wonder of the world"}
+    ],
+    activity:{
+      title:"Compound Growth Calculator",
+      desc:"Model what happens if you invest HK$500/month from age 16 to age 65.",
+      steps:["Open a spreadsheet (or use the calculation below)","Conservative fund (2%/year): final value ≈ HK$365,000","Equity fund (7%/year): final value ≈ HK$2,600,000","Difference = HK$2,235,000 — from the same monthly saving","Calculate: how does starting at 26 instead of 16 change the result?"]
+    },
+    discussion:["Why do most 16-year-olds not think about MPF — and should they?","If you could choose your MPF fund right now, which would you choose and why?","Why does starting 10 years earlier make such a massive difference?"],
+    quiz:[
+      {q:"Under MPF, if your monthly salary is HK$20,000, how much does your EMPLOYER contribute?",opts:["HK$200","HK$1,000","HK$2,000","HK$500"],ans:1},
+      {q:"An MPF equity fund typically aims for…",opts:["0% return with guaranteed capital","1-2% annual return","6-8% annual return","50%+ annual return"],ans:2},
+      {q:"Compound growth means…",opts:["Your salary grows each year","You earn returns on top of your previous returns","Your employer matches every dollar saved","The government adds to your MPF"],ans:1},
+      {q:"MPF contributions in HK are…",opts:["Optional for employees","Mandatory — required by law","Only required for earners above HK$100,000/month","Paid entirely by the employer"],ans:1},
+      {q:"Under MPF rules, the employee contribution rate is…",opts:["2% of salary","5% of salary","10% of salary","It depends on the employer"],ans:1},
+      {q:"If you invest HK$500/month from age 16 at 7% annual return, which outcome is closest to reality at age 65?",opts:["HK$200,000","HK$900,000","HK$2,600,000","HK$10,000,000"],ans:2},
+      {q:"A conservative MPF fund is most appropriate for someone who…",opts:["Is 22 and has 40 years to retirement","Is 62 and retiring in 3 years","Wants maximum growth","Has no income"],ans:1},
+      {q:"What is the key advantage of an equity MPF fund over a conservative fund?",opts:["It is guaranteed by the government","It has zero risk","It offers higher long-term growth potential","It can be withdrawn at any time"],ans:2},
+      {q:"Compound interest is powerful mainly because…",opts:["Banks offer higher rates to MPF accounts","Returns are tax-free in Hong Kong","You earn interest on both your principal AND previous interest","The government subsidises returns"],ans:2},
+      {q:"You start investing at 26 instead of 16. Everything else is the same. Your retirement pot will be…",opts:["Roughly the same","About 10% less","Significantly smaller — possibly less than half","Slightly larger"],ans:2}
+    ]
+  },
+  {
+    id:4, phase:1, icon:"📊", title:"Stocks & ETFs",
+    videos:[
+      {day:1, title:"Day 1", src:"https://www.youtube.com/watch?v=07iynJZv-F4"},
+      {day:2, title:"Day 2", src:"https://www.youtube.com/watch?v=RSI5IYPSQ6I"},
+      {day:3, title:"Day 3", src:"https://www.youtube.com/watch?v=mkztmpR4rCY"},
+      {day:4, title:"Day 4", src:"https://www.youtube.com/watch?v=duq59Q2mm2M"},
+      {day:5, title:"Day 5", src:"https://www.youtube.com/watch?v=2a4fbdZyiII"}
+    ],
+    hook:"If you bought Tencent (0700.HK) in 2014, where would you be now?",
+    objectives:["Explain what a share is and what owning one means","Read a basic stock quote from HKEX","Describe ETFs and explain why the Tracker Fund (2800.HK) suits beginners","Distinguish risk vs. return: not every stock is HSBC"],
+    concepts:[
+      {term:"Share",def:"A tiny ownership stake in a company. Buy one HSBC share → you own a tiny piece of HSBC"},
+      {term:"HKEX",def:"Hong Kong Exchanges and Clearing — where HK-listed shares are traded"},
+      {term:"ETF",def:"Exchange Traded Fund — a basket of many stocks in one product. Lower risk"},
+      {term:"2800.HK",def:"Tracker Fund of Hong Kong — tracks the Hang Seng Index. Easy diversification"},
+      {term:"Dividend",def:"A cash payment companies make to shareholders from their profits"},
+      {term:"Risk vs. Return",def:"Higher potential return usually means higher risk of loss"}
+    ],
+    activity:{
+      title:"Stock Research Challenge",
+      desc:"Research TWO stocks on the HKEX website and compare them.",
+      steps:["Go to hkex.com.hk and look up 0700.HK (Tencent) and 0005.HK (HSBC)","Record: current price, 52-week high, 52-week low, dividend yield","Calculate: if you invested HK$10,000 in each 3 years ago, what would it be worth now?","Which has more volatility? Which pays more dividends?","Starter portfolio challenge: allocate HK$100,000 across 3 stocks — justify your choices"]
+    },
+    discussion:["Why might an ETF be better than a single stock for a beginner?","HSBC vs Tencent: which would you choose and why?","What does 'past performance is not a guarantee of future returns' really mean?"],
+    quiz:[
+      {q:"When you buy a share in a company, you become…",opts:["A customer of that company","An employee of that company","A part-owner of that company","A lender to that company"],ans:2},
+      {q:"The Tracker Fund (2800.HK) is an ETF that tracks…",opts:["The top 50 US tech companies","The Hang Seng Index","Property prices in Hong Kong","China's GDP growth"],ans:1},
+      {q:"Which is generally MORE risky?",opts:["Buying one single tech stock","Buying an ETF of 50 stocks","Putting money in a savings account","Buying a government bond"],ans:0},
+      {q:"A dividend is…",opts:["A type of stock exchange","A penalty for selling shares early","A cash payment to shareholders from company profits","The management fee on an ETF"],ans:2},
+      {q:"HKEX stands for…",opts:["Hong Kong Exchange Experience","Hong Kong Exchanges and Clearing","Hang Keng Exchange","Hong Kong Export Exchange"],ans:1},
+      {q:"If you own 100 shares of a company and it pays a HK$2 dividend per share, you receive…",opts:["HK$2","HK$20","HK$200","HK$2,000"],ans:2},
+      {q:"An ETF is best described as…",opts:["A single company's stock","A basket of many stocks in one product","A type of savings account","A government bond"],ans:1},
+      {q:"Tencent is listed on HKEX under the ticker…",opts:["0005.HK","0700.HK","2800.HK","1211.HK"],ans:1},
+      {q:"Which of these statements about ETFs is TRUE?",opts:["ETFs always outperform individual stocks","ETFs can only be bought by institutions","ETFs provide instant diversification across many companies","ETFs never pay dividends"],ans:2},
+      {q:"A stock's 52-week high tells you…",opts:["The stock's average price","The highest price reached in the past year","What the stock will be worth next year","The total dividends paid"],ans:1}
+    ]
+  },
+  {
+    id:5, phase:1, icon:"🌱", title:"ESG & Green Bonds",
+    videos:[
+      {day:1, title:"Day 1", src:"https://www.youtube.com/watch?v=9JUa9CZu7V0"},
+      {day:2, title:"Day 2", src:"https://www.youtube.com/watch?v=YMgOU5CGcYQ"},
+      {day:3, title:"Day 3", src:"https://www.youtube.com/watch?v=SRhPijslFzc"},
+      {day:4, title:"Day 4", src:"https://www.youtube.com/watch?v=LXcKoit-Qtg"},
+      {day:5, title:"Day 5", src:"https://www.youtube.com/watch?v=X2fWTF8S0B4"}
+    ],
+    hook:"HK issued HK$30B in green bonds in 2024 — students can actually buy these!",
+    objectives:["Define ESG: Environment, Social, Governance in plain English","Explain green bonds vs regular bonds using HK examples","Describe carbon credits and why companies buy them","Connect the UN's 17 SDGs to real HK investment choices"],
+    concepts:[
+      {term:"ESG",def:"A framework rating companies on Environment (pollution), Social (workers), Governance (leadership)"},
+      {term:"Green Bond",def:"A bond where money raised MUST fund eco-friendly projects: solar, rail, clean water"},
+      {term:"Carbon Credit",def:"1 credit = 1 tonne of CO₂ NOT released. Companies buy these to 'offset' pollution"},
+      {term:"SDG",def:"UN's 17 Sustainable Development Goals — global targets for 2030 (e.g. clean energy, zero hunger)"},
+      {term:"iBond / GBond",def:"HK Government retail bonds available to the public. Minimum HK$10,000. Very low risk"}
+    ],
+    activity:{
+      title:"HK Green Bond Research",
+      desc:"Look up the HK Government Green Bond on HKMA's website.",
+      steps:["Go to hkma.gov.hk and search 'Green Bond'","Find ONE project your bond money would fund (e.g. MTR expansion, solar panels)","Would you invest? Explain your reasoning","Compare: Green Bond 3.5% return vs. Hang Seng ETF 7% return — what are the trade-offs?","Pick ONE SDG goal that matters most to your generation and find a HK company or product aligned to it"]
+    },
+    discussion:["Should making money and doing good for the planet be the same thing?","If a company scores well on E and S but poorly on G, would you invest?","Is ESG investing a trend or a permanent shift — and why does it matter for HK?"],
+    quiz:[
+      {q:"ESG stands for…",opts:["Economy, Savings, Growth","Environmental, Social, Governance","Equity, Shares, Government","Exchange, Securities, Gains"],ans:1},
+      {q:"A Green Bond is different from a regular bond because…",opts:["It pays higher interest","The money raised must fund eco-friendly projects","It's only available to institutional investors","It has no maturity date"],ans:1},
+      {q:"1 carbon credit represents…",opts:["1 tonne of CO₂ emitted","1 tonne of CO₂ NOT released","1 year of carbon neutrality","1 million dollars of green investment"],ans:1},
+      {q:"Which of these is an example of a strong 'G' (Governance) factor?",opts:["A company with low CO₂ emissions","A company that pays its workers a fair wage","A company with an independent board and transparent accounts","A company that donates to charities"],ans:2},
+      {q:"The HK Government issued approximately HK$___ in green bonds in 2024.",opts:["HK$3 billion","HK$10 billion","HK$30 billion","HK$100 billion"],ans:2},
+      {q:"Which of these best describes the 'S' in ESG?",opts:["Whether a company is listed on the stock exchange","How a company treats its workers, communities, and customers","Whether a company publishes annual reports","How much a company spends on solar panels"],ans:1},
+      {q:"An iBond in Hong Kong is…",opts:["A bond only available to banks","A government retail bond available to the general public","An international bond for overseas investors","A type of corporate green bond"],ans:1},
+      {q:"SDG stands for…",opts:["Sustainable Development Goals","Stock Diversification Guidelines","Social Dividend Growth","Structured Deposit Gains"],ans:0},
+      {q:"Which of these is an example of a strong 'E' (Environmental) factor?",opts:["A company with a female CEO","A company with transparent financial reporting","A factory that generates 100% of its power from solar energy","A company that offers staff flexible working hours"],ans:2},
+      {q:"Impact investing aims to…",opts:["Only maximise financial returns","Generate returns without regard to ethics","Generate positive social or environmental outcomes alongside financial returns","Avoid all risk by investing only in government bonds"],ans:2}
+    ]
+  },
+  {
+    id:6, phase:1, icon:"🏠", title:"Property Market & Policy",
+    videos:[
+      {day:1, title:"Day 1", src:"https://www.youtube.com/watch?v=q3cBOd5594U"},
+      {day:2, title:"Day 2", src:"https://www.youtube.com/watch?v=Tnae5ipmSUo"},
+      {day:3, title:"Day 3", src:"https://www.youtube.com/watch?v=QnI8HPkPpcc"},
+      {day:4, title:"Day 4", src:"https://www.youtube.com/watch?v=ZFFNZYlKBuA"},
+      {day:5, title:"Day 5", src:"https://www.youtube.com/watch?v=7RrIFb6_uhg"}
+    ],
+    hook:"Why does my parents' flat cost 40× our annual income?",
+    objectives:["Explain Stamp Duty types: SSD (Speculator's Tax) and BSD (Non-HK residents)","Describe how government cooling measures affect property prices","Compare renting vs. buying with real HK numbers","Model a 25-year mortgage at current HK interest rates"],
+    concepts:[
+      {term:"SSD",def:"Special Stamp Duty — extra tax if you sell a property within 2 years (to stop speculation)"},
+      {term:"BSD",def:"Buyer's Stamp Duty — extra 7.5% tax for non-HK permanent residents buying property"},
+      {term:"Mortgage",def:"A loan to buy property. In HK, max loan is 60% of property value (LTV ratio)"},
+      {term:"Price-to-Income Ratio",def:"Average property price ÷ average annual income. HK is among the world's highest"},
+      {term:"Cooling Measures",def:"Government policies designed to slow down price rises in the property market"}
+    ],
+    activity:{
+      title:"Mortgage Modelling Exercise",
+      desc:"Model a 25-year mortgage for a HK$5M flat — what is the monthly payment?",
+      steps:["Assume: HK$5M flat, 40% down payment = HK$2M needed as mortgage","Interest rate: HIBOR + 1.3% ≈ 4% per year total","Monthly payment formula: P × r / (1 − (1+r)^−n), where P=2M, r=4%/12, n=300","What percentage of a HK$30,000/month salary is this payment?","Rent vs. buy: If monthly rent for similar flat is HK$18,000, which is better?"]
+    },
+    discussion:["Should the HK government do more to control property prices — or less?","If you could only afford to own one property in HK in your lifetime, where would it be and why?","Would you ever rent forever by choice? What's the case for renting?"],
+    quiz:[
+      {q:"BSD in Hong Kong is a tax charged to…",opts:["First-time HK buyer residents","Non-HK permanent residents buying property","Anyone selling within 2 years","Companies buying commercial property"],ans:1},
+      {q:"In HK, the maximum bank loan (LTV) for a HK$6M property is typically…",opts:["90% of property value","70% of property value","60% of property value","50% of property value"],ans:2},
+      {q:"A high Price-to-Income ratio means…",opts:["Houses are affordable","Houses are very expensive relative to local salaries","The economy is doing well","Renting is cheaper than buying everywhere"],ans:1},
+      {q:"Stamp Duty cooling measures are designed to…",opts:["Encourage more people to buy property","Reduce speculation and slow price increases","Give tax breaks to first-time buyers","Fund new MTR lines"],ans:1},
+      {q:"SSD (Special Stamp Duty) is triggered when you…",opts:["Buy a property as a non-resident","Sell a property within 2 years of buying it","Rent out a property","Take out a second mortgage"],ans:1},
+      {q:"A 25-year mortgage on HK$3M at 4% annual interest has a monthly payment of approximately…",opts:["HK$6,000","HK$12,000","HK$15,800","HK$20,000"],ans:2},
+      {q:"Which factor has made HK property prices among the highest in the world?",opts:["Very high local salaries","Unlimited supply of new land","Limited buildable land and high demand","Low interest rates only"],ans:2},
+      {q:"If a flat costs HK$8M and the bank lends 60%, how much cash do you need for the down payment?",opts:["HK$800,000","HK$2,400,000","HK$3,200,000","HK$4,800,000"],ans:2},
+      {q:"Renting instead of buying has which MAIN financial advantage?",opts:["You build equity each month","You pay no housing costs","You keep capital free to invest elsewhere","You never have to move"],ans:2},
+      {q:"The HOS (Home Ownership Scheme) in HK is designed to…",opts:["Help the wealthiest families buy luxury flats","Provide subsidised housing for eligible lower-income residents","Give tax breaks to property developers","Allow foreigners to buy property at a discount"],ans:1}
+    ]
+  },
+  {
+    id:7, phase:2, icon:"📉", title:"Reading Charts",
+    videos:[
+      {day:1, title:"Day 1", src:"https://www.youtube.com/watch?v=OtecEk1wcGM"},
+      {day:2, title:"Day 2", src:"https://www.youtube.com/watch?v=IVw3uPiKrlU"},
+      {day:3, title:"Day 3", src:"https://www.youtube.com/watch?v=QGyRJj07rtU"},
+      {day:4, title:"Day 4", src:"https://www.youtube.com/watch?v=hLbrD1RbydA"},
+      {day:5, title:"Day 5", src:"https://www.youtube.com/watch?v=Yg0gKRUyOGs"}
+    ],
+    hook:"A candlestick is just a picture of fear and greed.",
+    objectives:["Read a candlestick chart: identify open, close, high, low","Identify support and resistance levels on a real chart","Draw trend lines: uptrend, downtrend, sideways","Chart the Hang Seng Index for the past month from memory/data"],
+    concepts:[
+      {term:"Candlestick",def:"Green = price rose that day (close > open). Red = price fell (close < open)"},
+      {term:"Support",def:"A price level where buyers tend to step in — the floor that price 'bounces' off"},
+      {term:"Resistance",def:"A price level where sellers take over — the ceiling price struggles to break through"},
+      {term:"Trend",def:"Uptrend (higher highs, higher lows) / Downtrend (lower highs, lower lows) / Sideways"},
+      {term:"Volume",def:"How many shares were traded that day. High volume confirms a price move"}
+    ],
+    activity:{
+      title:"Chart the Hang Seng",
+      desc:"Draw a Hang Seng candlestick chart for the past 20 trading days.",
+      steps:["Get the past 20 days of Hang Seng closing data from hkex.com.hk or Yahoo Finance (^HSI)","Draw a simple candlestick chart on graph paper or in a spreadsheet","Mark the highest price of the period (resistance) and lowest price (support)","Draw a trend line — is the market in an uptrend, downtrend, or sideways?","Predict: where will price be in 5 days? State your reasoning"]
+    },
+    discussion:["Is technical chart analysis real science, or just pattern-matching?","If everyone can see the same support level, does that make it self-fulfilling?","When would a chart NOT be useful for making an investment decision?"],
+    quiz:[
+      {q:"A GREEN candlestick means…",opts:["Price fell that day","Price rose (close was higher than open)","Volume was unusually high","The market was closed"],ans:1},
+      {q:"A 'support' level on a chart is…",opts:["A price ceiling sellers defend","A price floor buyers tend to step in at","The average of all prices","The highest price ever"],ans:1},
+      {q:"An uptrend is defined by…",opts:["Lower highs and lower lows","Higher highs and higher lows","Flat prices over time","Very high trading volume"],ans:1},
+      {q:"High volume on a big price move usually suggests…",opts:["The move is likely fake","The move is more likely to be significant","The market will reverse tomorrow","Price will stay flat"],ans:1},
+      {q:"A RED candlestick means…",opts:["Price rose that day","Volume was low","Price fell (close was lower than open)","The market was paused"],ans:2},
+      {q:"A 'resistance' level on a chart is…",opts:["A price floor where buyers step in","A price ceiling where sellers tend to dominate","The lowest price ever traded","The 52-week average price"],ans:1},
+      {q:"On a candlestick, what does the 'wick' (shadow) represent?",opts:["The opening and closing prices","The high and low prices reached during the session","The trading volume","The daily average price"],ans:1},
+      {q:"A sideways trend means…",opts:["The stock is falling slowly","The stock is rising slowly","Price is moving within a horizontal range without clear direction","Volume is declining"],ans:2},
+      {q:"Which chart pattern suggests a downtrend?",opts:["Higher highs and higher lows","Price above its 200-day moving average","Lower highs and lower lows","Increasing volume on green days"],ans:2},
+      {q:"If price breaks ABOVE a previous resistance level on high volume, this typically signals…",opts:["A likely reversal downward","Continued sideways movement","A bullish breakout — the resistance has become support","A crash is imminent"],ans:2}
+    ]
+  },
+  {
+    id:8, phase:2, icon:"🔍", title:"Technical Indicators",
+    videos:[
+      {day:1, title:"Day 1", src:"https://www.youtube.com/watch?v=LcylBrgeVRw"},
+      {day:2, title:"Day 2", src:"https://www.youtube.com/watch?v=IsYM2Wy50Rw"},
+      {day:3, title:"Day 3", src:"https://www.youtube.com/watch?v=uoof-gQa8MM"},
+      {day:4, title:"Day 4", src:"https://www.youtube.com/watch?v=_TOWJ-39mcE"},
+      {day:5, title:"Day 5", src:"https://www.youtube.com/watch?v=vWGy9145tvI"}
+    ],
+    hook:"MA, RSI, MACD — three tools that tell you 3 different things.",
+    objectives:["Calculate a 3-day and 5-day simple moving average from a price list","Interpret RSI: what does 'overbought' and 'oversold' mean?","Describe what Volume tells you that price alone cannot","Identify buy/sell signals on a chart using MA crossover"],
+    concepts:[
+      {term:"Moving Average (MA)",def:"The average price over the last N days. Smooths out noise to show the trend"},
+      {term:"MA Crossover",def:"When a short MA crosses above a long MA → bullish signal. Below → bearish"},
+      {term:"RSI",def:"Relative Strength Index. 0-100 scale. Above 70 = overbought; below 30 = oversold"},
+      {term:"MACD",def:"Moving Average Convergence Divergence — shows momentum. Used by professional traders"},
+      {term:"Overbought / Oversold",def:"Price has moved too far too fast — may be due for a correction (not guaranteed)"}
+    ],
+    activity:{
+      title:"Manual MA Calculation",
+      desc:"Use this price list to calculate a 3-day moving average: [100, 102, 98, 105, 110, 108, 112, 109, 115, 118]",
+      steps:["Day 3 MA = (100+102+98)/3 = 100.0 — calculate the rest","Plot the original prices AND the 3-day MA on a line chart","Do the same for a 5-day MA","Find where the 3-day MA crosses above the 5-day MA — this is a 'golden cross' buy signal","What would RSI tell you if the price had risen 10 days in a row without pause?"]
+    },
+    discussion:["If technical indicators are public knowledge, can they ever give you a real edge?","When would you trust RSI over MA? When would you use both together?","Can a trading bot win using only indicators — or does human judgement matter?"],
+    quiz:[
+      {q:"Calculate the 3-day MA for day 4 using: [100, 102, 98, 105]",opts:["100.0","101.7","101.25","103.0"],ans:1},
+      {q:"RSI above 70 generally means a stock is…",opts:["Oversold — likely to rise","Overbought — may be due for a pullback","Fairly valued","About to crash"],ans:1},
+      {q:"RSI below 30 generally means a stock is…",opts:["Overbought","About to hit an all-time high","Oversold — may bounce","Guaranteed to keep falling"],ans:2},
+      {q:"A 'golden cross' occurs when…",opts:["RSI crosses 50","A short-term MA crosses ABOVE a long-term MA","Price rises 10% in one day","Volume doubles overnight"],ans:1},
+      {q:"Calculate the 3-day MA for the prices [108, 112, 109]. The result is…",opts:["108.0","109.7","111.0","110.5"],ans:1},
+      {q:"What does MACD stand for?",opts:["Moving Average Convergence Divergence","Market and Capital Development","Mean Average Cost Distribution","Moving Algorithmic Calculation Data"],ans:0},
+      {q:"Which indicator specifically measures the SPEED and MOMENTUM of price change?",opts:["Volume","Support level","RSI","The 200-day MA"],ans:2},
+      {q:"A 'death cross' is when…",opts:["RSI drops below 30","A short-term MA crosses BELOW a long-term MA","Price falls 20% in one week","Volume dries up completely"],ans:1},
+      {q:"A moving average is most useful for…",opts:["Predicting exact future prices","Smoothing out price noise to reveal the underlying trend","Setting the exact entry price","Measuring company earnings"],ans:1},
+      {q:"If the 5-day MA is above the 20-day MA, the short-term signal is…",opts:["Bearish","Neutral","Bullish","Unknown without RSI"],ans:2}
+    ]
+  },
+  {
+    id:9, phase:2, icon:"🤖", title:"AI Trading Signals",
+    videos:[
+      {day:1, title:"Day 1", src:"https://www.youtube.com/watch?v=-ozED59LJCU"},
+      {day:2, title:"Day 2", src:"https://www.youtube.com/watch?v=yydSaUrgGyI"},
+      {day:3, title:"Day 3", src:"https://www.youtube.com/watch?v=7fiJmddDO6g"},
+      {day:4, title:"Day 4", src:"https://www.youtube.com/watch?v=hvFnHc3pOiA"},
+      {day:5, title:"Day 5", src:"https://www.youtube.com/watch?v=MemcWm7R-Ho"}
+    ],
+    hook:"How does Jade's AI read thousands of data points in milliseconds?",
+    objectives:["Describe the inputs a trading AI uses: MA, RSI, volume, news sentiment","Explain BUY / HOLD / SELL signals with confidence percentages","Analyse a live Jade AI signal and understand its reasoning","Critically evaluate: can AI replace human judgement in trading?"],
+    concepts:[
+      {term:"AI Signal",def:"An AI-generated recommendation: BUY / HOLD / SELL, plus a confidence % (e.g. 73%)"},
+      {term:"Signal Inputs",def:"MA crossovers + RSI + volume + price patterns + news sentiment = AI output"},
+      {term:"Confidence %",def:"How strongly the model believes in its signal, based on how many indicators agree"},
+      {term:"Backtesting",def:"Testing a strategy against PAST data to see how well it would have performed"},
+      {term:"Overfitting",def:"A model trained so precisely on past data it fails on new real-world data — a real AI risk"}
+    ],
+    activity:{
+      title:"Analyse a Signal",
+      desc:"Use the sample AI signal below and evaluate whether you agree.",
+      steps:["Signal: 0700.HK (Tencent) — BUY — Confidence: 71%","Inputs: 5-day MA crossed above 20-day MA; RSI at 48 (neutral); volume +30% above average","Question 1: Is this a strong or weak signal? Justify using the inputs","Question 2: What information would you want that the AI might not have?","Question 3: If you were the trader, would you act on this signal? Why or why not?"]
+    },
+    discussion:["Should an AI system explain every decision it makes — or is accuracy enough?","If Jade's AI has a 65% accuracy rate, would you trust it? What would you need to see?","Can AI be biased in financial predictions? Give an example of how this could happen."],
+    quiz:[
+      {q:"A Jade AI signal with 'confidence 82%' means…",opts:["The stock will definitely go up 82%","The model's indicators agree strongly — 82% confidence in the signal","82% of users have followed this signal","The stock has 82% chance of hitting its 52-week high"],ans:1},
+      {q:"Backtesting is used to…",opts:["Test a trading strategy against live market data","Test a strategy against historical data to assess its performance","Ensure the AI doesn't make errors","Replace manual analysis permanently"],ans:1},
+      {q:"Which combination of signals would give you the MOST confidence in a BUY?",opts:["MA crossover only","RSI at 30 AND MA crossover AND high volume","High volume only","A positive news article about the stock"],ans:1},
+      {q:"'Overfitting' in an AI trading model means…",opts:["The model processes too much data","The model works too well on past data but fails on new data","The model is too expensive to run","The model uses too many indicators"],ans:1},
+      {q:"Jade's AI signal scans which cryptocurrency pairs?",opts:["BTC, ETH, SOL","BTC, ETH, BNB","BTC, ETH, ADA","BTC, LTC, XRP"],ans:1},
+      {q:"What does a MIN_CONFIDENCE of 0.55 mean?",opts:["The AI only signals when indicators show at least 55% confidence","The AI signals on every trade and filters 55% out","55% of past signals were profitable","The AI needs 55 data points to generate a signal"],ans:0},
+      {q:"A 'stop-loss' order in trading is designed to…",opts:["Guarantee a profit on a trade","Automatically close a losing trade to limit further loss","Pause the AI signal system","Double down when a trade moves against you"],ans:1},
+      {q:"Jade's AI pauses trading for 24 hours after…",opts:["Any losing trade","Two consecutive losses","Three consecutive losses","The market closes"],ans:2},
+      {q:"Which indicator does Jade use to measure overall crypto market sentiment?",opts:["RSI","The Hang Seng Index","The Crypto Fear and Greed Index","MACD histogram"],ans:2},
+      {q:"T1 and T2 in Jade's signal system refer to…",opts:["Two different cryptocurrency exchanges","Trade entry times in two time zones","First and second profit-taking targets","Two types of moving average"],ans:2}
+    ]
+  },
+  {
+    id:10, phase:2, icon:"🐍", title:"Python Basics for Finance",
+    videos:[
+      {day:1, title:"Day 1", src:"https://www.youtube.com/watch?v=GnY5Ll8ob38"},
+      {day:2, title:"Day 2", src:"https://www.youtube.com/watch?v=CzlLRjTa_jA"},
+      {day:3, title:"Day 3", src:"https://www.youtube.com/watch?v=FqHaEMWoPBM"},
+      {day:4, title:"Day 4", src:"https://www.youtube.com/watch?v=J-tkfZmSs1g"},
+      {day:5, title:"Day 5", src:"https://www.youtube.com/watch?v=SyDFRoweJs0"}
+    ],
+    hook:"No coding experience? Perfect. We start from zero.",
+    objectives:["Define and use Python variables to store prices","Create lists to hold multiple stock prices","Write a basic for loop to process daily price data","Run your first Python programme in the browser sandbox"],
+    concepts:[
+      {term:"Variable",def:"A named container for a value. price = 330.5 stores 330.5 in a box called 'price'"},
+      {term:"List",def:"An ordered collection. prices = [100, 102, 98, 105] — like a column in a spreadsheet"},
+      {term:"For Loop",def:"'For each item in a list, do this action.' The workhorse of data processing"},
+      {term:"Function",def:"A reusable block of code. def get_average(prices): ... — write once, use many times"},
+      {term:"Print",def:"print('Hello') — shows output in the terminal. Your first line of Python!"}
+    ],
+    activity:{
+      title:"Your First Python Programme",
+      desc:"Type this into the code sandbox and run it:",
+      steps:[
+        "prices = [100, 102, 98, 105, 110]",
+        "for price in prices:  →  print('Price:', price)",
+        "Add: total = sum(prices) → print('Total:', total)",
+        "Add: average = total / len(prices) → print('Average:', average)",
+        "Challenge: change the list to last week's Tencent closing prices and re-run"
+      ]
+    },
+    discussion:["Why might a finance professional want to code their own tools rather than use Excel?","What are the limits of Python for real-world trading?","If you could automate ONE tedious finance task with Python, what would it be?"],
+    quiz:[
+      {q:"What does this code print?  price = 105.5  print(price)",opts:["price","105","105.5","print(price)"],ans:2},
+      {q:"Which of these correctly creates a Python list?",opts:["prices = 100, 102, 98","prices = [100, 102, 98]","prices = {100, 102, 98}","prices == [100, 102, 98]"],ans:1},
+      {q:"A for loop is used to…",opts:["Store a single value","Define a function","Repeat an action for each item in a list","Print the last item only"],ans:2},
+      {q:"What does len([10, 20, 30, 40]) return?",opts:["10","100","4","3"],ans:2},
+      {q:"What is the output of: print(10 + 5 * 2)?",opts:["30","20","15","25"],ans:1},
+      {q:"Which Python library is most commonly used for working with financial data tables?",opts:["NumPy","Pandas","Matplotlib","random"],ans:1},
+      {q:"What does the yfinance library allow you to do?",opts:["Build websites","Download historical stock price data","Draw 3D charts","Send emails"],ans:1},
+      {q:"Which of these correctly accesses the FIRST item in a list called prices?",opts:["prices[1]","prices(0)","prices[0]","prices.first"],ans:2},
+      {q:"What does the following code do? for p in prices: print(p)",opts:["Prints only the last price","Prints all prices one by one","Deletes the prices list","Calculates the average"],ans:1},
+      {q:"In Python, a variable is…",opts:["A fixed number that never changes","A named storage location for a value","A type of loop","A built-in function"],ans:1}
+    ]
+  },
+  {
+    id:11, phase:2, icon:"⚡", title:"Code a Moving Average",
+    videos:[
+      {day:1, title:"Day 1", src:"https://www.youtube.com/watch?v=6mtVzMhYHmc"},
+      {day:2, title:"Day 2", src:"https://www.youtube.com/watch?v=sSJ_LZCFA98"},
+      {day:3, title:"Day 3", src:"https://www.youtube.com/watch?v=ks7UiwtM4lc"},
+      {day:4, title:"Day 4", src:"https://www.youtube.com/watch?v=Ui8hQISidFE"},
+      {day:5, title:"Day 5", src:"https://www.youtube.com/watch?v=PK8eSIGbR5g"}
+    ],
+    hook:"From formula to function — write the same MA that Jade's AI uses.",
+    objectives:["Calculate a 3-day simple moving average from a Python list","Plot a text-based price chart in the terminal","Identify the MA crossover point (golden cross) in your output","Debug a partner's code and explain the error in plain English"],
+    concepts:[
+      {term:"SMA",def:"Simple Moving Average — sum of last N prices ÷ N. The most common indicator in trading"},
+      {term:"Slicing",def:"prices[i-2:i+1] extracts 3 items from a list — essential for MA calculation"},
+      {term:"Function",def:"def sma(prices, window): return sum(prices[-window:]) / window"},
+      {term:"Golden Cross",def:"Short-term MA rises above long-term MA. Classic bullish signal"},
+      {term:"Debug",def:"Find and fix errors in code. 'SyntaxError', 'IndexError' — learn to read them"}
+    ],
+    activity:{
+      title:"Code Your Moving Average",
+      desc:"Build a working 3-day MA calculator in Python:",
+      steps:[
+        "prices = [100, 102, 98, 105, 110, 108, 112, 109, 115, 118]",
+        "window = 3 → sma = []",
+        "for i in range(window-1, len(prices)):",
+        "  avg = sum(prices[i-window+1:i+1]) / window",
+        "  sma.append(round(avg, 2))",
+        "print('SMA:', sma)",
+        "Add signal: if prices[-1] > sma[-1]: print('BUY') else: print('HOLD')"
+      ]
+    },
+    discussion:["Why does a 3-day MA lose the first 2 data points?","What would change if you used a 10-day window instead of 3?","If your MA signal says BUY but your gut says Sell — what do you do?"],
+    quiz:[
+      {q:"What does prices[2:5] return from [10,20,30,40,50,60]?",opts:["[10, 20, 30]","[30, 40, 50]","[20, 30, 40]","[40, 50, 60]"],ans:1},
+      {q:"For a 3-day SMA on 10 days of data, how many SMA values do you get?",opts:["10","9","8","7"],ans:2},
+      {q:"A golden cross occurs when…",opts:["Price drops below the 3-day MA","The 3-day MA crosses ABOVE the 10-day MA","RSI goes above 70","Volume reaches an all-time high"],ans:1},
+      {q:"Which Python keyword defines a reusable function?",opts:["func","define","def","function"],ans:2},
+      {q:"Given prices = [100,102,98,105,110], what is the 3-day SMA for the LAST 3 values?",opts:["100.0","104.3","102.5","107.0"],ans:1},
+      {q:"What does prices[-1] return?",opts:["The first item","The second-to-last item","The last item","An error"],ans:2},
+      {q:"In the function def sma(prices, window), 'window' is…",opts:["A fixed number always equal to 3","A parameter you pass in when calling the function","The name of the list","A Python keyword"],ans:1},
+      {q:"What is a 'SyntaxError' in Python?",opts:["The code ran but gave the wrong answer","The code has a typo or formatting error that Python cannot understand","The internet connection was lost","The data list was empty"],ans:1},
+      {q:"Why does a 3-day SMA lose the FIRST 2 data points?",opts:["Python starts counting from 2","You need at least 3 values to calculate the first average","The first 2 prices are always outliers","The function ignores them by default"],ans:1},
+      {q:"After calculating a 3-day SMA, you add: if prices[-1] > sma[-1]: print('BUY'). This prints BUY when…",opts:["The latest price is below the 3-day average","The latest price is above the 3-day average","The SMA is falling","RSI is above 70"],ans:1}
+    ]
+  },
+  {
+    id:12, phase:2, icon:"🚀", title:"Run & Present Your Signal",
+    videos:[
+      {day:1, title:"Day 1", src:"https://www.youtube.com/watch?v=XAYX3wCdD-s"},
+      {day:2, title:"Day 2", src:"https://www.youtube.com/watch?v=5gl3Jv0dJns"},
+      {day:3, title:"Day 3", src:"https://www.youtube.com/watch?v=K20U2LDswLA"},
+      {day:4, title:"Day 4", src:"https://www.youtube.com/watch?v=k335Lq-kXfY"},
+      {day:5, title:"Day 5", src:"https://www.youtube.com/watch?v=QF8jPNjL8YQ"}
+    ],
+    hook:"Demo Day — show the class what your bot recommends.",
+    objectives:["Combine data input → MA calculation → BUY/SELL output in one programme","Test your signal against real HSI data from the past 30 days","Present your portfolio performance and strategy to the class","Reflect: what would you improve if you had 3 more weeks?"],
+    concepts:[
+      {term:"Pipeline",def:"Data → Clean → Calculate → Signal → Output. The full flow of a trading system"},
+      {term:"Sharpe Ratio",def:"(Return − Risk-free rate) ÷ Volatility. Measures return per unit of risk"},
+      {term:"Drawdown",def:"The peak-to-trough fall in portfolio value. Measures worst-case scenario"},
+      {term:"Alpha",def:"Return above the benchmark (e.g. beating the Hang Seng Index). The ultimate goal"},
+      {term:"Demo Day",def:"Present your signal, your portfolio, your best trade, and what you'd improve"}
+    ],
+    activity:{
+      title:"Final Demo Day",
+      desc:"Prepare a 3-minute presentation for the class.",
+      steps:["Open your virtual portfolio — calculate your total return vs. HK$100,000 starting value","Your best trade: which stock, when did you buy, and what did the AI signal say?","Your worst trade: what went wrong — was it the signal, the timing, or bad luck?","Show your Python MA code — run it live on last month's HSI data","One feature you'd add to make Jade better — be specific"]
+    },
+    discussion:["What is the single biggest thing you learned about money that you didn't know 12 weeks ago?","Would you use AI signals for real money? What conditions would need to be true first?","If you could teach ONE lesson from this programme to your parents, which would it be?"],
+    quiz:[
+      {q:"A trading pipeline in Python means…",opts:["A physical connection between computers","Data → process → signal, all in one automated flow","A list of stocks to buy","A debugging tool"],ans:1},
+      {q:"A drawdown of 20% means…",opts:["Your portfolio grew by 20%","Your portfolio fell 20% from its highest value","You withdrew 20% of your cash","Transaction costs of 20%"],ans:1},
+      {q:"'Alpha' in investing means…",opts:["The first letter of the portfolio name","Return above the market benchmark","The volatility of your portfolio","Guaranteed profit from AI signals"],ans:1},
+      {q:"Which is the BEST final reflection for Demo Day?",opts:["'My bot made 0% so it failed'","'I learned nothing new about markets'","'My signal had flaws but I now understand why and how to improve it'","'AI is always right and I should follow it blindly'"],ans:2},
+      {q:"The Sharpe Ratio measures…",opts:["Total profit in HK dollars","Return per unit of risk","The number of winning trades","The speed of trade execution"],ans:1},
+      {q:"If your portfolio started at HK$100,000 and is now worth HK$115,000, your return is…",opts:["5%","10%","15%","20%"],ans:2},
+      {q:"Your worst trade lost HK$8,000 from a HK$100,000 portfolio. The drawdown is…",opts:["0.8%","8%","80%","HK$92,000"],ans:1},
+      {q:"A good Demo Day presentation includes…",opts:["Only your best trade to impress classmates","A complete reflection including what went wrong and how you would improve","Only the Python code with no context","A comparison to another student\'s bot"],ans:1},
+      {q:"If your bot generated a BUY signal on Tencent at HK$300 and you sold at HK$330, your profit on 10 shares is…",opts:["HK$30","HK$300","HK$3,000","HK$30,000"],ans:1},
+      {q:"Which best describes a fully automated trading pipeline?",opts:["A human checks every signal before trading","Data is downloaded, processed, a signal is generated, and a trade is placed — all automatically","Only the signal generation is automated","Trades are placed by calling a broker"],ans:1}
+    ]
+  }
+];
+
+const STOCKS = {
+  "0700.HK": {name:"Tencent", price:330},
+  "0005.HK": {name:"HSBC", price:62},
+  "2800.HK": {name:"Tracker Fund ETF", price:21},
+  "0941.HK": {name:"China Mobile", price:78},
+  "0388.HK": {name:"HKEX", price:290},
+  "1211.HK": {name:"BYD", price:28},
+  "0016.HK": {name:"SHK Properties", price:88}
+};
+
+const BADGES = [
+  {id:"first_lesson", icon:"📖", name:"First Step", desc:"Complete your first lesson", condition: s => s.completedWeeks.length >= 1},
+  {id:"saver", icon:"💰", name:"Saver", desc:"Complete Phase 1", condition: s => s.completedWeeks.filter(w=>w<=6).length >= 6},
+  {id:"investor", icon:"📊", name:"Investor", desc:"Make your first trade", condition: s => s.trades > 0},
+  {id:"trader", icon:"🤖", name:"Trader", desc:"Complete Phase 2", condition: s => s.completedWeeks.filter(w=>w>=7).length >= 6},
+  {id:"quiz_ace", icon:"🎯", name:"Quiz Ace", desc:"Pass 5 quizzes", condition: s => s.quizPasses >= 5},
+  {id:"python_coder", icon:"🐍", name:"Coder", desc:"Complete Weeks 10–12", condition: s => [10,11,12].every(w=>s.completedWeeks.includes(w))},
+  {id:"esg_champion", icon:"🌱", name:"ESG Champion", desc:"Complete Week 5", condition: s => s.completedWeeks.includes(5)},
+  {id:"graduate", icon:"🎓", name:"Graduate", desc:"Complete all 12 weeks", condition: s => s.completedWeeks.length >= 12}
+];
+
+const DEMO_STUDENTS = [
+  // ── Full roster (25 students, mixed progress) ──
+  {name:"Jason Chan",      cls:"F6A", completedWeeks:[1,2,3,4,5,6,7,8,9,10,11,12], xp:1280, quizPasses:12, trades:15, cash:68000,  holdings:{"0700.HK":{qty:10,avgCost:310}}},
+  {name:"Alyssa Chan",     cls:"F6A", completedWeeks:[1,2,3,4,5,6,7,8],            xp:840,  quizPasses:7,  trades:4,  cash:91000,  holdings:{}},
+  {name:"Marcus Leung",    cls:"F6A", completedWeeks:[1,2,3,4,5,6],                xp:640,  quizPasses:5,  trades:1,  cash:98000,  holdings:{}},
+  {name:"Chloe Wong",      cls:"F6A", completedWeeks:[1,2,3,4,5,6,7,8,9,10],      xp:1050, quizPasses:9,  trades:8,  cash:82000,  holdings:{}},
+  {name:"Brian Lam",       cls:"F6A", completedWeeks:[1,2,3],                      xp:280,  quizPasses:2,  trades:0,  cash:100000, holdings:{}},
+  {name:"Sophie Tam",      cls:"F6B", completedWeeks:[1,2,3,4,5,6,7,8,9],         xp:960,  quizPasses:8,  trades:7,  cash:87000,  holdings:{}},
+  {name:"Kevin Ho",        cls:"F6B", completedWeeks:[1,2,3,4],                    xp:400,  quizPasses:3,  trades:2,  cash:91000,  holdings:{}},
+  {name:"Grace Fung",      cls:"F6B", completedWeeks:[1,2,3,4,5,6,7,8,9,10,11],   xp:1120, quizPasses:10, trades:9,  cash:76000,  holdings:{}},
+  {name:"Emily Ng",        cls:"F6B", completedWeeks:[1,2],                        xp:180,  quizPasses:1,  trades:0,  cash:100000, holdings:{}},
+  {name:"Priya Nair",      cls:"F6B", completedWeeks:[1,2,3,4,5,6,7],             xp:720,  quizPasses:6,  trades:3,  cash:89000,  holdings:{}},
+  {name:"Ryan Cheung",     cls:"F5A", completedWeeks:[1,2,3,4,5],                 xp:520,  quizPasses:4,  trades:1,  cash:97000,  holdings:{}},
+  {name:"Vivian Chow",     cls:"F5A", completedWeeks:[1,2,3,4,5,6,7,8,9,10,11,12],xp:1260, quizPasses:12, trades:13, cash:71000,  holdings:{}},
+  {name:"Daniel Yip",      cls:"F5A", completedWeeks:[1],                          xp:90,   quizPasses:0,  trades:0,  cash:100000, holdings:{}},
+  {name:"Michelle Kwok",   cls:"F5A", completedWeeks:[1,2,3,4,5,6,7],             xp:730,  quizPasses:6,  trades:5,  cash:88000,  holdings:{}},
+  {name:"Alex Pang",       cls:"F5A", completedWeeks:[1,2,3,4],                   xp:410,  quizPasses:3,  trades:0,  cash:100000, holdings:{}},
+  {name:"Hannah Tsui",     cls:"F5B", completedWeeks:[1,2,3,4,5,6,7,8],           xp:820,  quizPasses:7,  trades:6,  cash:84000,  holdings:{}},
+  {name:"Oscar Lee",       cls:"F5B", completedWeeks:[1,2,3],                     xp:290,  quizPasses:2,  trades:0,  cash:100000, holdings:{}},
+  {name:"Natalie Sin",     cls:"F5B", completedWeeks:[1,2,3,4,5,6,7,8,9,10],     xp:1040, quizPasses:9,  trades:7,  cash:80000,  holdings:{}},
+  {name:"Tommy Chan",      cls:"F5B", completedWeeks:[1,2],                       xp:170,  quizPasses:1,  trades:0,  cash:100000, holdings:{}},
+  {name:"Samantha Hui",    cls:"F5B", completedWeeks:[1,2,3,4,5,6],              xp:630,  quizPasses:5,  trades:2,  cash:95000,  holdings:{}},
+  {name:"Ivan Mak",        cls:"F4A", completedWeeks:[1,2,3,4,5,6,7,8,9],        xp:940,  quizPasses:8,  trades:6,  cash:85000,  holdings:{}},
+  {name:"Candy Yuen",      cls:"F4A", completedWeeks:[1,2,3,4],                  xp:380,  quizPasses:3,  trades:1,  cash:99000,  holdings:{}},
+  {name:"Patrick Siu",     cls:"F4A", completedWeeks:[1,2,3,4,5,6,7,8,9,10,11], xp:1100, quizPasses:10, trades:10, cash:74000,  holdings:{}},
+  {name:"Elaine To",       cls:"F4A", completedWeeks:[1,2,3],                    xp:260,  quizPasses:2,  trades:0,  cash:100000, holdings:{}},
+  {name:"Wesley Fong",     cls:"F4A", completedWeeks:[1,2,3,4,5],               xp:510,  quizPasses:4,  trades:3,  cash:93000,  holdings:{}}
+];
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+// ── Account credentials ──────────────────────────────
+// Full access:  any name + Teacher/Student role
+// Demo access:  name "demo" (case-insensitive) → DEMO_MODE
+const FULL_ACCOUNTS = ["jason chan"];  // always full access regardless of role
+const DEMO_KEYWORD  = "demo";          // triggers demo mode
+
+let isDemoMode = false;  // true = week 1 only, 0 students in teacher view
+
+let state = {
+  role: null,
+  name: "",
+  cls: "",
+  mode: "teacher",
+  currentWeek: 1,
+  currentPanel: "",
+  student: null
+};
+
+// ══════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════
+function selectRole(role) {
+  state.role = role;
+  document.getElementById('roleTeacher').classList.toggle('selected', role==='teacher');
+  document.getElementById('roleStudent').classList.toggle('selected', role==='student');
+  document.getElementById('studentClassRow').style.display = role==='student' ? 'block' : 'none';
+  document.getElementById('nameInput').placeholder = role==='teacher' ? 'Teacher name…' : 'Your name…';
+}
+
+async function enterApp() {
+  const name = document.getElementById('nameInput').value.trim();
+  // ── Supabase auth path ──────────────────────────────────────────
+  const demo = sessionStorage.getItem('jade_demo');
+  if (!demo) {
+    const { data: { session } } = await _sb.auth.getSession();
+    if (session) {
+      // Load real profile from DB
+      const { data: profile } = await _sb.from('profiles')
+        .select('*').eq('id', session.user.id).single();
+      if (profile) {
+        isDemoMode = false;
+        state.student = {
+          id: session.user.id,
+          name: profile.first_name + ' ' + profile.last_name,
+          role: profile.role,
+          access_level: profile.access_level,
+          xp: profile.xp || 0,
+          completedWeeks: profile.completed_weeks || [],
+          quizPasses: profile.quiz_passes || 0,
+          cash: profile.cash || 100000,
+          holdings: profile.holdings || {}
+        };
+        // Weeks locked if access_level === 'free'
+        if (profile.access_level === 'free') isDemoMode = true;
+        document.getElementById('loginScreen').classList.remove('active');
+        initApp();
+        return;
+      }
+    }
+  }
+  // ── Demo / legacy name path ─────────────────────────────────────
+  const name2 = document.getElementById('nameInput').value.trim();
+  if (!state.role) { toast("Please select Teacher or Student"); return; }
+  if (!name) { toast("Please enter your name"); return; }
+  state.name = name;
+
+  // ── Detect demo mode ──────────────────────────────────────
+  isDemoMode = name.toLowerCase() === DEMO_KEYWORD;
+
+  if (state.role === 'student') {
+    state.cls = document.getElementById('classSelect').value;
+    let existing = DEMO_STUDENTS.find(s => s.name.toLowerCase() === name.toLowerCase());
+    if (!existing) {
+      if (DEMO_STUDENTS.length >= 50) {
+        toast("This class is full (50/50 students). Please contact your teacher.");
+        return;
+      }
+      existing = {name, cls:state.cls, completedWeeks:[], xp:0, quizPasses:0, trades:0, cash:100000, holdings:{}, tradeHistory:[]};
+      DEMO_STUDENTS.push(existing);
+    }
+    if (!existing.tradeHistory) existing.tradeHistory = [];
+    state.student = existing;
+    state.mode = 'student';
+  } else {
+    state.mode = 'teacher';
+  }
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+  initApp();
+}
+
+function logout() {
+  _sb.auth.signOut();
+  sessionStorage.removeItem('jade_demo');
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('active');
+  isDemoMode = false;
+  state = {role:null, name:"", cls:"", mode:"teacher", currentWeek:1, currentPanel:"", student:null};
+  document.getElementById('nameInput').value = "";
+  document.getElementById('roleTeacher').classList.remove('selected');
+  document.getElementById('roleStudent').classList.remove('selected');
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+function initApp() {
+  const demoLabel = isDemoMode ? ' · DEMO MODE' : '';
+  document.getElementById('topbarTitle').textContent = state.role === 'teacher'
+    ? `Teacher Dashboard${demoLabel}` : `Jade Learning Platform${demoLabel}`;
+  document.getElementById('userChip').textContent = (isDemoMode ? '🔍 Demo' : state.name) + " ←";
+
+  if (state.role === 'teacher') {
+    document.getElementById('modeToggle').style.display = 'flex';
+    document.getElementById('xpBadge').style.display = 'none';
+  } else {
+    document.getElementById('modeToggle').style.display = 'none';
+    document.getElementById('xpBadge').style.display = 'flex';
+    updateXP();
+  }
+
+  buildWeekNavs();
+  buildWeekGrids();
+  if (state.mode === 'teacher') {
+    showTeacherMode();
+  } else {
+    showStudentMode();
+  }
+}
+
+function setMode(m) {
+  state.mode = m;
+  document.getElementById('modeTeacherBtn').classList.toggle('active', m==='teacher');
+  document.getElementById('modeStudentBtn').classList.toggle('active', m==='student');
+  if (m === 'teacher') showTeacherMode(); else showStudentMode();
+}
+
+function showTeacherMode() {
+  document.getElementById('teacherNav').style.display = 'block';
+  document.getElementById('studentNav').style.display = 'none';
+  document.getElementById('teacherPanels').style.display = 'block';
+  document.getElementById('studentPanels').style.display = 'none';
+  document.getElementById('xpBadge').style.display = 'none';
+  populateTeacherOverview();
+  populateClassRoster();
+  populateLessonPlans();
+  showTeacherPanel('overview');
+}
+
+function showStudentMode() {
+  document.getElementById('teacherNav').style.display = 'none';
+  document.getElementById('studentNav').style.display = 'block';
+  document.getElementById('teacherPanels').style.display = 'none';
+  document.getElementById('studentPanels').style.display = 'block';
+  document.getElementById('xpBadge').style.display = 'flex';
+  updateStudentHome();
+  updatePortfolioDisplay();
+  updateBadgesDisplay();
+  showStudentPanel('home');
+}
+
+// ══════════════════════════════════════════════════
+// WEEK NAVIGATION BUILDERS
+// ══════════════════════════════════════════════════
+function buildWeekNavs() {
+  ['teacherWeekNav1','teacherWeekNav2','studentWeekNav1','studentWeekNav2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
+  WEEKS.forEach(w => {
+    const navId1 = w.phase===1 ? 'teacherWeekNav1' : 'teacherWeekNav2';
+    const navId2 = w.phase===1 ? 'studentWeekNav1' : 'studentWeekNav2';
+    const isLocked = isDemoMode && w.id > 1;
+    [navId1, navId2].forEach((navId, isStudent) => {
+      const nav = document.getElementById(navId);
+      if (!nav) return;
+      const isCompleted = state.student && state.student.completedWeeks.includes(w.id);
+      const div = document.createElement('div');
+      div.className = `week-item${isCompleted?' completed':''}${w.id===state.currentWeek?' active':''}${isLocked?' locked':''}`;
+      div.id = `nav-${isStudent?'s':'t'}-w${w.id}`;
+      div.innerHTML = `<span class="week-dot"></span>${isLocked ? '🔒' : w.icon} W${w.id}: ${w.title}`;
+      const wk = w.id;
+      if (!isLocked) {
+        div.onclick = () => { state.currentWeek = wk; openWeek(wk); };
+      } else {
+        div.onclick = () => toast("Week " + wk + " is not available in the demo. Contact us to unlock the full programme.");
+      }
+      nav.appendChild(div);
+    });
+  });
+}
+
+function buildWeekGrids() {
+  ['teacherWeekGrid','studentWeekGrid'].forEach((gridId, isStudent) => {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    grid.innerHTML = '';
+    WEEKS.forEach(w => {
+      const isCompleted = state.student && state.student.completedWeeks.includes(w.id);
+      const isActive = w.id === state.currentWeek;
+      const isLocked = isDemoMode && w.id > 1;
+      const div = document.createElement('div');
+      div.className = `week-card${isCompleted?' completed':''}${isActive?' active':''}${isLocked?' locked':''}`;
+      div.style.opacity = isLocked ? '0.45' : '1';
+      div.innerHTML = `<div class="wc-num">W${w.id}</div><div class="wc-icon">${isLocked ? '🔒' : w.icon}</div><div class="wc-title">${w.title}</div>`;
+      if (!isLocked) {
+        div.onclick = () => { state.currentWeek = w.id; openWeek(w.id); };
+      } else {
+        div.onclick = () => toast("Week " + w.id + " is not available in the demo.");
+        div.style.cursor = 'not-allowed';
+      }
+      grid.appendChild(div);
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════
+// TEACHER PANELS
+// ══════════════════════════════════════════════════
+function showTeacherPanel(panel) {
+  document.querySelectorAll('#teacherPanels .panel').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('tp-'+panel);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('#teacherNav .nav-item').forEach(n => n.classList.remove('active'));
+}
+
+function populateTeacherOverview() {
+  const students = isDemoMode ? [] : (window._cloudStudents || DEMO_STUDENTS);
+  document.getElementById('t-totalStudents').textContent = students.length;
+  if (students.length === 0) {
+    document.getElementById('t-avgProgress').textContent = '—';
+    document.getElementById('t-avgXP').textContent = '—';
+    document.getElementById('t-quizPass').textContent = '—';
+    return;
+  }
+  const avgProg = Math.round(students.reduce((a,s) => a + s.completedWeeks.length/12*100, 0) / students.length);
+  document.getElementById('t-avgProgress').textContent = avgProg + '%';
+  const avgXP = Math.round(students.reduce((a,s) => a+s.xp, 0) / students.length);
+  document.getElementById('t-avgXP').textContent = avgXP;
+  const totalPasses = students.reduce((a,s) => a+s.quizPasses, 0);
+  const totalPossible = students.reduce((a,s) => a+s.completedWeeks.length, 0);
+  document.getElementById('t-quizPass').textContent = totalPossible > 0 ? Math.round(totalPasses/totalPossible*100)+'%' : '—';
+}
+
+function populateClassRoster() {
+  const tbody = document.getElementById('classTableBody');
+  const students = window._cloudStudents || DEMO_STUDENTS;
+  tbody.innerHTML = '';
+
+  if (isDemoMode) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px 20px;color:var(--muted)">
+      <div style="font-size:32px;margin-bottom:12px">👥</div>
+      <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">No students enrolled yet</div>
+      <div style="font-size:13px">Students will appear here once they join the programme.</div>
+      <div style="margin-top:16px;padding:12px 20px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:8px;display:inline-block;font-size:12px;color:var(--gold)">
+        🌟 This is a demo account. Contact Jade Prosperity to enrol your class.
+      </div>
+    </td></tr>`;
+    return;
+  }
+
+  DEMO_STUDENTS.forEach(s => {
+    const pct = Math.round(s.completedWeeks.length/12*100);
+    const portfolioVal = s.cash + Object.entries(s.holdings || {}).reduce((a,[ticker,h]) => a + h.qty*(STOCKS[ticker]?.price||0), 0);
+    const pnl = portfolioVal - 100000;
+    const status = pct >= 75 ? '<span class="tag green">On Track</span>' : pct >= 40 ? '<span class="tag amber">Progressing</span>' : '<span class="tag red">Needs Help</span>';
+    tbody.innerHTML += `<tr>
+      <td><strong>${s.name}</strong></td>
+      <td>${s.cls}</td>
+      <td>W${Math.max(...s.completedWeeks, 0) || '—'}</td>
+      <td>⚡ ${s.xp}</td>
+      <td style="color:${pnl>=0?'var(--teal)':'#f87171'}">HK$${portfolioVal.toLocaleString()}</td>
+      <td><div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div></td>
+      <td>${status}</td>
+    </tr>`;
+  });
+}
+
+function populateLessonPlans() {
+  const container = document.getElementById('lessonPlansList');
+  container.innerHTML = '';
+  WEEKS.forEach(w => {
+    const div = document.createElement('div');
+    div.className = 'lesson-plan-box';
+    div.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="openWeek(${w.id})">
+        <div>
+          <span class="phase-pill ${w.phase===1?'p1':'p2'}">Phase ${w.phase}</span>
+          <h3 style="font-size:16px;font-weight:700;margin:4px 0">${w.icon} Week ${w.id}: ${w.title}</h3>
+          <p style="font-size:13px;color:var(--muted);font-style:italic">"${w.hook}"</p>
+        </div>
+        <span style="color:var(--gold);font-size:20px">→</span>
+      </div>
+      <div class="lp-timing" style="margin-top:12px">
+        <span class="lp-chip gold">📋 ${w.objectives.length} Objectives</span>
+        <span class="lp-chip teal">🎯 ${w.quiz.length} Quiz Questions</span>
+        <span class="lp-chip purple">🏃 1 Class Activity</span>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// OPEN WEEK (shared teacher + student)
+// ══════════════════════════════════════════════════
+function openWeek(wid) {
+  if (isDemoMode && wid > 1) {
+    toast("Week " + wid + " is locked in the demo. Contact us to access the full programme.");
+    return;
+  }
+  state.currentWeek = wid;
+  const w = WEEKS.find(x => x.id === wid);
+  if (!w) return;
+  buildWeekNavs();
+  buildWeekGrids();
+
+  if (state.mode === 'teacher') {
+    renderTeacherWeek(w);
+  } else {
+    renderStudentWeek(w);
+  }
+}
+
+function renderTeacherWeek(w) {
+  const panel = document.getElementById('tp-week');
+  panel.innerHTML = teacherWeekHTML(w);
+  document.querySelectorAll('#teacherPanels .panel').forEach(p => p.classList.remove('active'));
+  panel.classList.add('active');
+}
+
+function renderStudentWeek(w) {
+  const panel = document.getElementById('sp-week');
+  const isCompleted = state.student && state.student.completedWeeks.includes(w.id);
+  panel.innerHTML = studentWeekHTML(w, isCompleted);
+  document.querySelectorAll('#studentPanels .panel').forEach(p => p.classList.remove('active'));
+  panel.classList.add('active');
+  initQuiz(w);
+}
+
+function teacherWeekHTML(w) {
+  const conceptRows = w.concepts.map(c => `
+    <tr><td style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:600;color:var(--gold);width:140px">${c.term}</td>
+    <td style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:14px;color:var(--muted)">${c.def}</td></tr>`).join('');
+  const objItems = w.objectives.map(o => `<li>${o}</li>`).join('');
+  const actSteps = w.activity.steps.map(s => `<li>${s}</li>`).join('');
+  const discItems = w.discussion.map(d => `<li style="padding:6px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)">${d}</li>`).join('');
+
+  return `
+    <div style="padding:28px 32px">
+      <button class="btn-secondary" style="margin-bottom:20px" onclick="showTeacherPanel('lessons')">← Back to Lesson Plans</button>
+      <div class="lesson-header">
+        <div class="week-label">Week ${w.id} of 12</div>
+        <span class="phase-pill ${w.phase===1?'p1':'p2'}">Phase ${w.phase} — ${w.phase===1?'Finance Foundations':'Trading & AI'}</span>
+        <h1>${w.icon} ${w.title}</h1>
+        <div class="hook">"${w.hook}"</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="card">
+          <h3>📌 Learning Objectives</h3>
+          <ul class="objectives-list">${objItems}</ul>
+        </div>
+        <div class="card">
+          <h3>💬 Discussion Questions</h3>
+          <ul style="list-style:none">${discItems}</ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <h3>📚 Key Concepts & Definitions</h3>
+        <table style="width:100%;border-collapse:collapse">${conceptRows}</table>
+      </div>
+
+      <div class="activity-box">
+        <div class="act-label">🏃 Class Activity</div>
+        <h4>${w.activity.title}</h4>
+        <p>${w.activity.desc}</p>
+        <ol class="steps-list">${actSteps}</ol>
+      </div>
+
+      <div class="card">
+        <h3>✅ Quiz (${w.quiz.length} Questions)</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:8px">Preview of this week's auto-graded quiz questions:</p>
+        ${w.quiz.map((q,i) => `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px">Q${i+1}. ${q.q}</div>
+          <div style="font-size:12px;color:var(--teal)">✓ Correct: ${q.opts[q.ans]}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function studentWeekHTML(w, isCompleted) {
+  const objItems = w.objectives.map(o => `<li>${o}</li>`).join('');
+  const actSteps = w.activity.steps.map(s => `<li>${s}</li>`).join('');
+  const conceptCards = w.concepts.map(c => `
+    <div style="background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:4px">${c.term}</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.5">${c.def}</div>
+    </div>`).join('');
+  const quizHTML = w.quiz.map((q,i) => `
+    <div class="quiz-question" id="qq-${i}">
+      <div class="q-num">Question ${i+1} of ${w.quiz.length}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="opts-${i}">
+        ${q.opts.map((o,j) => `<div class="opt" id="opt-${i}-${j}" onclick="selectOpt(${i},${j})">${o}</div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  return `
+    <div style="padding:28px 32px">
+      <button class="btn-secondary" style="margin-bottom:20px" onclick="showStudentPanel('home')">← Back to Home</button>
+      <div class="lesson-header">
+        <div class="week-label">Week ${w.id} of 12 ${isCompleted?'<span style="color:var(--teal);margin-left:8px">✓ Completed</span>':''}</div>
+        <span class="phase-pill ${w.phase===1?'p1':'p2'}">Phase ${w.phase} — ${w.phase===1?'Finance Foundations':'Trading & AI'}</span>
+        <h1>${w.icon} ${w.title}</h1>
+        <div class="hook">"${w.hook}"</div>
+      </div>
+
+
+      ${(w.videos && w.videos.some(v => v.src)) ? `
+      <div style="margin-bottom:24px">
+        <div class="sub-title" style="margin-bottom:12px">🎬 Daily Videos</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
+          ${w.videos.map(v => v.src ? `
+            <a href="${v.src}" target="_blank" rel="noopener noreferrer"
+              style="display:block;text-decoration:none;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--navy2);transition:transform .15s,box-shadow .15s"
+              onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.3)'"
+              onmouseout="this.style.transform='';this.style.boxShadow=''">
+              <div style="position:relative;padding-bottom:52%;background:#000">
+                <img
+                  src="https://img.youtube.com/vi/${v.src.replace('https://www.youtube.com/watch?v=','').split('&')[0]}/hqdefault.jpg"
+                  alt="${v.title}"
+                  style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.85"/>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:rgba(255,0,0,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+                </div>
+                <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.75);color:#fff;font-size:11px;padding:2px 6px;border-radius:4px">YouTube ↗</div>
+              </div>
+              <div style="padding:7px 10px">
+                <div style="font-size:11px;color:var(--teal);font-weight:700;margin-bottom:1px">Day ${v.day}</div>
+                <div style="font-size:11px;color:var(--text);font-weight:600;line-height:1.3">${v.title}</div>
+              </div>
+            </a>` : `
+            <div style="border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--navy3);opacity:0.4">
+              <div style="padding-bottom:52%;background:var(--navy3)"></div>
+              <div style="padding:7px 10px">
+                <div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:2px">Day ${v.day}</div>
+                <div style="font-size:13px;color:var(--muted)">Coming soon</div>
+              </div>
+            </div>`
+          ).join('')}
+        </div>
+      </div>` : ''}
+
+      <div class="card" style="margin-bottom:16px">
+        <h3>📌 What You'll Learn</h3>
+        <ul class="objectives-list">${objItems}</ul>
+      </div>
+
+      <div class="sub-title" style="margin-bottom:12px">📚 Key Concepts</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px">${conceptCards}</div>
+
+      <div class="activity-box">
+        <div class="act-label">🏃 This Week's Activity</div>
+        <h4>${w.activity.title}</h4>
+        <p>${w.activity.desc}</p>
+        <ol class="steps-list">${actSteps}</ol>
+      </div>
+
+      <div class="quiz-section">
+        <div class="sub-title">🎯 Weekly Quiz — Earn 100 XP</div>
+        <div id="quizContainer">${quizHTML}</div>
+        <div class="quiz-submit">
+          <button class="btn-primary" id="quizSubmitBtn" onclick="submitQuiz(${w.id})">Submit Quiz →</button>
+        </div>
+        <div id="quizResult"></div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════
+// QUIZ LOGIC
+// ══════════════════════════════════════════════════
+let quizAnswers = {};
+function initQuiz(w) {
+  quizAnswers = {};
+  w.quiz.forEach((_,i) => quizAnswers[i] = -1);
+}
+
+function selectOpt(qIdx, optIdx) {
+  const w = WEEKS.find(x => x.id === state.currentWeek);
+  if (!w) return;
+  // Clear previous selection
+  w.quiz[qIdx].opts.forEach((_,j) => {
+    const el = document.getElementById(`opt-${qIdx}-${j}`);
+    if (el) { el.classList.remove('selected'); }
+  });
+  quizAnswers[qIdx] = optIdx;
+  const el = document.getElementById(`opt-${qIdx}-${optIdx}`);
+  if (el) el.classList.add('selected');
+}
+
+function submitQuiz(wid) {
+  const w = WEEKS.find(x => x.id === wid);
+  if (!w) return;
+  let correct = 0;
+  w.quiz.forEach((q,i) => {
+    const selected = quizAnswers[i];
+    q.opts.forEach((_,j) => {
+      const el = document.getElementById(`opt-${i}-${j}`);
+      if (!el) return;
+      el.classList.remove('selected','correct','wrong');
+      if (j === q.ans) el.classList.add('correct');
+      else if (j === selected && selected !== q.ans) el.classList.add('wrong');
+    });
+    if (selected === q.ans) correct++;
+  });
+
+  document.getElementById('quizSubmitBtn').style.display = 'none';
+  const pct = Math.round(correct/w.quiz.length*100);
+  // auto-save to Supabase
+  saveProgressToCloud();
+  const passed = pct >= 75;
+  const result = document.getElementById('quizResult');
+  result.innerHTML = `<div class="quiz-result ${passed?'pass':'fail'}">
+    ${passed ? '🎉' : '📖'} You got ${correct}/${w.quiz.length} correct (${pct}%)
+    ${passed ? ' — Great work! +100 XP' : ' — Review the concepts above and try again.'}
+  </div>`;
+
+  if (state.student && passed) {
+    if (!state.student.completedWeeks.includes(wid)) {
+      state.student.completedWeeks.push(wid);
+      state.student.xp += 100;
+      state.student.quizPasses = (state.student.quizPasses || 0) + 1;
+      toast(`+100 XP! Week ${wid} complete! 🎉`);
+      updateXP();
+      buildWeekNavs();
+      buildWeekGrids();
+      updateStudentHome();
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════
+// STUDENT PANELS
+// ══════════════════════════════════════════════════
+function showStudentPanel(panel) {
+  document.querySelectorAll('#studentPanels .panel').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('sp-'+panel);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('#studentNav .nav-item').forEach(n => n.classList.remove('active'));
+  if (panel === 'portfolio') updatePortfolioDisplay();
+  if (panel === 'badges') updateBadgesDisplay();
+}
+
+function updateStudentHome() {
+  // Inject/remove demo banner
+  const existingBanner = document.getElementById('demoBanner');
+  if (existingBanner) existingBanner.remove();
+  if (isDemoMode) {
+    const banner = document.createElement('div');
+    banner.id = 'demoBanner';
+    banner.style.cssText = 'background:rgba(201,168,76,.1);border-bottom:1px solid rgba(201,168,76,.25);padding:10px 32px;font-size:13px;color:var(--gold);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5';
+    banner.innerHTML = '🔍 <strong>Demo Mode</strong> — Week 1 only. Weeks 2–12 are locked. <span style="color:var(--muted)">Contact Jade Prosperity to unlock the full 12-week programme.</span>';
+    const mainEl = document.querySelector('.main');
+    if (mainEl) mainEl.prepend(banner);
+  }
+
+  const s = state.student;
+  if (!s) return;
+  document.getElementById('studentWelcome').textContent = `Welcome back, ${s.name}! 👋`;
+  document.getElementById('s-xp').textContent = s.xp;
+  const nextWeek = s.completedWeeks.length > 0 ? Math.max(...s.completedWeeks) + 1 : 1;
+  document.getElementById('s-week').textContent = Math.min(nextWeek, 12);
+  const earnedBadges = BADGES.filter(b => b.condition(s)).length;
+  document.getElementById('s-badges').textContent = earnedBadges;
+
+  const certBanner = document.getElementById('certBanner');
+  if (s.completedWeeks.length >= 12) {
+    certBanner.style.display = 'flex';
+  } else {
+    certBanner.style.display = 'none';
+  }
+}
+
+function updateXP() {
+  const s = state.student;
+  if (!s) return;
+  document.getElementById('xpCount').textContent = s.xp;
+}
+
+// ══════════════════════════════════════════════════
+// PORTFOLIO
+// ══════════════════════════════════════════════════
+function executeTrade(action) {
+  const s = state.student;
+  if (!s) return;
+  const ticker = document.getElementById('tradeStock').value;
+  const qty = parseInt(document.getElementById('tradeQty').value);
+  const stock = STOCKS[ticker];
+  if (!stock || isNaN(qty) || qty <= 0) { toast("Invalid trade"); return; }
+  const cost = stock.price * qty;
+
+  if (!s.holdings) s.holdings = {};
+  if (!s.tradeHistory) s.tradeHistory = [];
+
+  if (action === 'buy') {
+    if (cost > s.cash) { toast("Not enough cash!"); return; }
+    s.cash -= cost;
+    if (!s.holdings[ticker]) s.holdings[ticker] = {qty:0, avgPrice:0};
+    const h = s.holdings[ticker];
+    h.avgPrice = (h.avgPrice * h.qty + cost) / (h.qty + qty);
+    h.qty += qty;
+    s.trades = (s.trades||0) + 1;
+    s.tradeHistory.unshift(`BUY ${qty} × ${ticker} @ HK$${stock.price} = HK$${cost.toLocaleString()}`);
+    toast(`Bought ${qty} ${ticker} for HK$${cost.toLocaleString()}`);
+  } else {
+    if (!s.holdings[ticker] || s.holdings[ticker].qty < qty) { toast("Not enough shares to sell!"); return; }
+    s.cash += cost;
+    s.holdings[ticker].qty -= qty;
+    if (s.holdings[ticker].qty === 0) delete s.holdings[ticker];
+    s.tradeHistory.unshift(`SELL ${qty} × ${ticker} @ HK$${stock.price} = HK$${cost.toLocaleString()}`);
+    toast(`Sold ${qty} ${ticker} for HK$${cost.toLocaleString()}`);
+  }
+  updatePortfolioDisplay();
+  updateBadgesDisplay();
+}
+
+function updatePortfolioDisplay() {
+  const s = state.student;
+  if (!s) return;
+  if (!s.holdings) s.holdings = {};
+  if (!s.tradeHistory) s.tradeHistory = [];
+
+  const holdingsVal = Object.entries(s.holdings).reduce((a,[t,h]) => a + h.qty*(STOCKS[t]?.price||0), 0);
+  const total = s.cash + holdingsVal;
+  const pnl = total - 100000;
+  const pct = (pnl / 100000 * 100).toFixed(2);
+
+  document.getElementById('pf-total').textContent = `HK$${Math.round(total).toLocaleString()}`;
+  const changeEl = document.getElementById('pf-change');
+  changeEl.textContent = `${pnl>=0?'+':''}HK$${Math.round(pnl).toLocaleString()} (${pct}%)`;
+  changeEl.className = 'pfs-change ' + (pnl>=0?'pos-green':'pos-red');
+  document.getElementById('pf-cash').textContent = `HK$${Math.round(s.cash).toLocaleString()}`;
+  document.getElementById('pf-holdings-val').textContent = `HK$${Math.round(holdingsVal).toLocaleString()}`;
+
+  const tbody = document.getElementById('holdingsBody');
+  if (Object.keys(s.holdings).length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">No holdings yet. Place your first trade above.</td></tr>';
+  } else {
+    tbody.innerHTML = Object.entries(s.holdings).map(([t,h]) => {
+      const curr = STOCKS[t]?.price || 0;
+      const val = curr * h.qty;
+      const pnl2 = (curr - h.avgPrice) * h.qty;
+      return `<tr>
+        <td><strong>${t}</strong><br><span style="font-size:12px;color:var(--muted)">${STOCKS[t]?.name||''}</span></td>
+        <td>${h.qty}</td>
+        <td>HK$${h.avgPrice.toFixed(2)}</td>
+        <td>HK$${curr.toFixed(2)}</td>
+        <td>HK$${val.toLocaleString()}</td>
+        <td style="color:${pnl2>=0?'var(--teal)':'#f87171'}">${pnl2>=0?'+':''}HK$${Math.round(pnl2).toLocaleString()}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  const logEl = document.getElementById('tradeLog');
+  if (s.tradeHistory.length === 0) {
+    logEl.innerHTML = '<div class="empty-state" style="padding:20px"><div class="es-icon">📋</div>No trades yet.</div>';
+  } else {
+    logEl.innerHTML = s.tradeHistory.map(t => `<div class="trade-entry">${t}</div>`).join('');
+  }
+}
+
+// ══════════════════════════════════════════════════
+// BADGES
+// ══════════════════════════════════════════════════
+function updateBadgesDisplay() {
+  const s = state.student;
+  if (!s) return;
+  const grid = document.getElementById('badgesGrid');
+  grid.innerHTML = BADGES.map(b => {
+    const earned = b.condition(s);
+    return `<div class="badge-item ${earned?'earned':''}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-desc">${b.desc}</div>
+      ${earned ? '<div style="font-size:11px;color:var(--teal);margin-top:4px;font-weight:700">✓ Earned</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════
+// CERTIFICATE
+// ══════════════════════════════════════════════════
+function generateCertificate() {
+  const s = state.student;
+  if (!s) return;
+  const today = new Date().toLocaleDateString('en-HK', {day:'numeric', month:'long', year:'numeric'});
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>Jade Certificate — ${s.name}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;600&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#f5f0e8; display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:'Inter',sans-serif; }
+    .cert { background:#fff; width:900px; min-height:620px; padding:60px 80px; border:2px solid #c9a84c; position:relative; box-shadow:0 8px 40px rgba(0,0,0,.15); }
+    .cert::before { content:''; position:absolute; inset:12px; border:1px solid #e2be6e; pointer-events:none; }
+    .logo { font-size:48px; text-align:center; margin-bottom:8px; }
+    .org { font-family:'Playfair Display',serif; font-size:13px; letter-spacing:3px; text-transform:uppercase; color:#8a7340; text-align:center; margin-bottom:32px; }
+    .presents { font-size:13px; color:#888; text-align:center; letter-spacing:2px; text-transform:uppercase; margin-bottom:16px; }
+    .cert-title { font-family:'Playfair Display',serif; font-size:36px; font-weight:700; color:#0d1b2e; text-align:center; margin-bottom:24px; line-height:1.2; }
+    .awarded-to { font-size:13px; color:#888; text-align:center; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+    .student-name { font-family:'Playfair Display',serif; font-size:42px; color:#c9a84c; text-align:center; margin-bottom:24px; border-bottom:2px solid #e2be6e; padding-bottom:16px; }
+    .desc { font-size:15px; color:#444; text-align:center; line-height:1.7; margin-bottom:36px; max-width:580px; margin-left:auto; margin-right:auto; }
+    .footer { display:flex; justify-content:space-between; align-items:flex-end; margin-top:8px; }
+    .sig-block { text-align:center; }
+    .sig-line { width:180px; border-top:1px solid #888; margin-bottom:6px; }
+    .sig-label { font-size:12px; color:#888; letter-spacing:1px; }
+    .date-block { text-align:right; font-size:13px; color:#666; }
+    .seal { width:80px; height:80px; border-radius:50%; background:#0d1b2e; display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto; }
+    @media print { body { background:#fff; } .cert { box-shadow:none; } .no-print { display:none; } }
+  </style></head><body>
+  <div>
+    <div class="cert">
+      <div class="logo">🪙</div>
+      <div class="org">Jade Prosperity Limited</div>
+      <div class="presents">This is to certify that</div>
+      <div class="student-name">${s.name}</div>
+      <div class="cert-title">Certificate of Completion<br>Jade Financial Literacy &amp; STEM Programme</div>
+      <div class="desc">
+        has successfully completed all 12 weeks of the Jade Financial Literacy and STEM Programme,
+        covering Finance Foundations (Weeks 1–6) and Trading &amp; AI (Weeks 7–12),
+        including portfolio simulation, Python coding, ESG investing, and AI signal analysis.
+        <br><br>Total XP Earned: <strong>${s.xp} XP</strong> &nbsp;|&nbsp; Quizzes Passed: <strong>${s.quizPasses}</strong>
+      </div>
+      <div class="footer">
+        <div class="sig-block">
+          <div class="sig-line"></div>
+          <div class="sig-label">Programme Director, Jade Prosperity</div>
+        </div>
+        <div class="seal">🪙</div>
+        <div class="date-block">
+          <div style="font-size:15px;font-weight:600;color:#0d1b2e">${today}</div>
+          <div style="font-size:11px;color:#aaa;margin-top:4px">Date of Completion</div>
+        </div>
+      </div>
+    </div>
+    <div class="no-print" style="text-align:center;margin-top:20px">
+      <button onclick="window.print()" style="padding:12px 32px;background:#c9a84c;color:#0d1b2e;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer">🖨️ Print / Save as PDF</button>
+    </div>
+  </div>
+  </body></html>`);
+  win.document.close();
+}
+
+// ══════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════
+function toast(msg) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ══════════════════════════════════════════════════
+// INIT DEFAULTS
+// ══════════════════════════════════════════════════
+selectRole('teacher');
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+}
+
+function dismissIosInstallBanner() {
+  document.getElementById('iosInstallBanner').style.display = 'none';
+  localStorage.setItem('jadeIosInstallDismissed', '1');
+}
+
+(function () {
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches;
+  const dismissed = localStorage.getItem('jadeIosInstallDismissed') === '1';
+  if (isIos && !isStandalone && !dismissed) {
+    setTimeout(() => {
+      document.getElementById('iosInstallBanner').style.display = 'flex';
+    }, 2500);
+  }
+})();
+
+
+
+// ── Cloud save ─────────────────────────────────────────────────────────────
+async function saveProgressToCloud() {
+  const demo = sessionStorage.getItem('jade_demo');
+  if (demo || !state.student?.id) return; // skip for demo users
+  const { data: { session } } = await _sb.auth.getSession();
+  if (!session) return;
+  fetch('/.netlify/functions/save-progress', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + session.access_token
+    },
+    body: JSON.stringify({
+      completed_weeks: state.student.completedWeeks,
+      xp:              state.student.xp,
+      quiz_passes:     state.student.quizPasses,
+      holdings:        state.student.holdings,
+      cash:            state.student.cash
+    })
+  }).catch(() => {}); // silent fail — don't break the UI
+}
+
+// ── Load real class roster for teachers ───────────────────────────────────
+async function loadRosterFromCloud() {
+  const { data: { session } } = await _sb.auth.getSession();
+  if (!session) return;
+  const res = await fetch('/.netlify/functions/get-roster', {
+    headers: { 'Authorization': 'Bearer ' + session.access_token }
+  });
+  if (!res.ok) return;
+  const { students } = await res.json();
+  if (students && students.length > 0) {
+    // map DB shape to app shape
+    window._cloudStudents = students.map(s => ({
+      name: s.first_name + ' ' + s.last_name,
+      class: 'Enrolled',
+      completedWeeks: s.completed_weeks || [],
+      xp: s.xp || 0,
+      quizPasses: s.quiz_passes || 0,
+      cash: 100000,
+      holdings: {}
+    }));
+  }
+}
+
+</script>
+</body>
+</html>

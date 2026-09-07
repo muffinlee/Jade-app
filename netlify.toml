@@ -9,13 +9,3 @@
 
 [build.environment]
   NODE_VERSION = "18"
-
-[[plugins]]
-  package = "@netlify/plugin-inject-analytics"
-
-# Inject env vars as window._env_ for client-side Supabase
-[context.production.environment]
-  # Set these in Netlify Dashboard → Site Settings → Environment Variables:
-  # SUPABASE_URL
-  # SUPABASE_ANON_KEY  (public — safe to expose)
-  # SUPABASE_SERVICE_KEY  (private — only used in functions)

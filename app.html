@@ -243,17 +243,14 @@ a { color: var(--gold); text-decoration: none; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ── Supabase config (set in Netlify env vars, injected at build) ──
-const SUPABASE_URL  = window._env_?.SUPABASE_URL  || 'https://rqdonorvtbjtarvbslbf.supabase.co';
-const SUPABASE_ANON = window._env_?.SUPABASE_ANON || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxZG9ub3J2dGJqdGFydmJzbGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NDU5MDYsImV4cCI6MjEwNDMyMTkwNn0.NlU7z8MxyHexZ5WDImpGBqUqbl_2iUp0Z5hs4rWEBiU';
+const SUPABASE_URL  = 'https://rqdonorvtbjtarvbslbf.supabase.co';
+const SUPABASE_ANON = 'YOUR_ANON_KEY_PLACEHOLDER';
 const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
-// Auth gate: if not logged in and not demo, go to login page
 (async () => {
   const demo = sessionStorage.getItem('jade_demo');
-  if (demo) return; // demo mode, carry on
+  if (demo) return;
   const { data: { session } } = await _sb.auth.getSession();
-  if (!session) { window.location.href = '/login.html'; }
+  if (!session) { window.location.href = '/index.html'; }
 })();
 </script>
 </head>
@@ -1011,18 +1008,13 @@ function selectRole(role) {
 }
 
 async function enterApp() {
-  const name = document.getElementById('nameInput').value.trim();
-  // ── Supabase auth path ──────────────────────────────────────────
   const demo = sessionStorage.getItem('jade_demo');
   if (!demo) {
     const { data: { session } } = await _sb.auth.getSession();
     if (session) {
-      // Load real profile from DB
-      const { data: profile } = await _sb.from('profiles')
-        .select('*').eq('id', session.user.id).single();
+      const { data: profile } = await _sb.from('profiles').select('*').eq('id', session.user.id).single();
       if (profile) {
-        isDemoMode = false;
-        state.student = {
+        currentStudent = {
           id: session.user.id,
           name: profile.first_name + ' ' + profile.last_name,
           role: profile.role,
@@ -1033,16 +1025,15 @@ async function enterApp() {
           cash: profile.cash || 100000,
           holdings: profile.holdings || {}
         };
-        // Weeks locked if access_level === 'free'
-        if (profile.access_level === 'free') isDemoMode = true;
+        isDemoMode = profile.access_level === 'free';
         document.getElementById('loginScreen').classList.remove('active');
         initApp();
         return;
       }
     }
   }
-  // ── Demo / legacy name path ─────────────────────────────────────
-  const name2 = document.getElementById('nameInput').value.trim();
+  // fallback legacy path
+  const name = document.getElementById('nameInput').value.trim();
   if (!state.role) { toast("Please select Teacher or Student"); return; }
   if (!name) { toast("Please enter your name"); return; }
   state.name = name;
@@ -1208,7 +1199,7 @@ function showTeacherPanel(panel) {
 }
 
 function populateTeacherOverview() {
-  const students = isDemoMode ? [] : (window._cloudStudents || DEMO_STUDENTS);
+  const students = isDemoMode ? [] : DEMO_STUDENTS;
   document.getElementById('t-totalStudents').textContent = students.length;
   if (students.length === 0) {
     document.getElementById('t-avgProgress').textContent = '—';
@@ -1227,7 +1218,6 @@ function populateTeacherOverview() {
 
 function populateClassRoster() {
   const tbody = document.getElementById('classTableBody');
-  const students = window._cloudStudents || DEMO_STUDENTS;
   tbody.innerHTML = '';
 
   if (isDemoMode) {
@@ -1501,8 +1491,6 @@ function submitQuiz(wid) {
 
   document.getElementById('quizSubmitBtn').style.display = 'none';
   const pct = Math.round(correct/w.quiz.length*100);
-  // auto-save to Supabase
-  saveProgressToCloud();
   const passed = pct >= 75;
   const result = document.getElementById('quizResult');
   result.innerHTML = `<div class="quiz-result ${passed?'pass':'fail'}">
@@ -1775,49 +1763,22 @@ function dismissIosInstallBanner() {
 
 
 
-// ── Cloud save ─────────────────────────────────────────────────────────────
 async function saveProgressToCloud() {
   const demo = sessionStorage.getItem('jade_demo');
-  if (demo || !state.student?.id) return; // skip for demo users
+  if (demo || !currentStudent?.id) return;
   const { data: { session } } = await _sb.auth.getSession();
   if (!session) return;
   fetch('/.netlify/functions/save-progress', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + session.access_token
-    },
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
     body: JSON.stringify({
-      completed_weeks: state.student.completedWeeks,
-      xp:              state.student.xp,
-      quiz_passes:     state.student.quizPasses,
-      holdings:        state.student.holdings,
-      cash:            state.student.cash
+      completed_weeks: currentStudent.completedWeeks,
+      xp: currentStudent.xp,
+      quiz_passes: currentStudent.quizPasses,
+      holdings: currentStudent.holdings,
+      cash: currentStudent.cash
     })
-  }).catch(() => {}); // silent fail — don't break the UI
-}
-
-// ── Load real class roster for teachers ───────────────────────────────────
-async function loadRosterFromCloud() {
-  const { data: { session } } = await _sb.auth.getSession();
-  if (!session) return;
-  const res = await fetch('/.netlify/functions/get-roster', {
-    headers: { 'Authorization': 'Bearer ' + session.access_token }
-  });
-  if (!res.ok) return;
-  const { students } = await res.json();
-  if (students && students.length > 0) {
-    // map DB shape to app shape
-    window._cloudStudents = students.map(s => ({
-      name: s.first_name + ' ' + s.last_name,
-      class: 'Enrolled',
-      completedWeeks: s.completed_weeks || [],
-      xp: s.xp || 0,
-      quizPasses: s.quiz_passes || 0,
-      cash: 100000,
-      holdings: {}
-    }));
-  }
+  }).catch(() => {});
 }
 
 </script>

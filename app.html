@@ -244,7 +244,7 @@ a { color: var(--gold); text-decoration: none; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL  = 'https://rqdonorvtbjtarvbslbf.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxZG9ub3J2dGJqdGFydmJzbGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NDU5MDYsImV4cCI6MjEwNDMyMTkwNn0.NlU7z8MxyHexZ5WDImpGBqUqbl_2iUp0Z5hs4rWEBiU';
+const SUPABASE_ANON = 'YOUR_ANON_KEY_PLACEHOLDER';
 const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 (async () => {
   const demo = sessionStorage.getItem('jade_demo');
@@ -1236,7 +1236,7 @@ function populateClassRoster() {
     const pct = Math.round(s.completedWeeks.length/12*100);
     const portfolioVal = s.cash + Object.entries(s.holdings || {}).reduce((a,[ticker,h]) => a + h.qty*(STOCKS[ticker]?.price||0), 0);
     const pnl = portfolioVal - 100000;
-    const status = pct >= 75 ? '<span class="tag green">On Track</span>' : pct >= 40 ? '<span class="tag amber">Progressing</span>' : '<span class="tag red">Needs Help</span>';
+    const status = pct >= 50 ? '<span class="tag green">On Track</span>' : pct >= 25 ? '<span class="tag amber">Progressing</span>' : '<span class="tag red">Needs Help</span>';
     tbody.innerHTML += `<tr>
       <td><strong>${s.name}</strong></td>
       <td>${s.cls}</td>

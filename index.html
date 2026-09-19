@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jade Financial Literacy — Sign In</title>
@@ -36,8 +35,6 @@ input:focus,select:focus{outline:none;border-color:var(--gold);}
 .divider{margin:20px 0;text-align:center;color:var(--muted);font-size:12px;position:relative;}
 .divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border);}
 .divider::before{left:0;} .divider::after{right:0;}
-.demo-btn{width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;transition:all .2s;}
-.demo-btn:hover{border-color:var(--teal);color:var(--teal);}
 .spinner{display:none;width:18px;height:18px;border:2px solid #0d1b2e;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto;}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -69,8 +66,6 @@ input:focus,select:focus{outline:none;border-color:var(--gold);}
     </button>
     <div id="loginMsg" class="msg"></div>
 
-    <div class="divider">or</div>
-    <button class="demo-btn" onclick="doDemo()">🎭 &nbsp;Try Demo Mode</button>
   </div>
 
   <!-- REGISTER FORM -->
@@ -122,8 +117,8 @@ input:focus,select:focus{outline:none;border-color:var(--gold);}
 
 <script>
 // ── Supabase init ──────────────────────────────────────────────────────────
-const SUPABASE_URL = window.SUPABASE_URL || 'https://rqdonorvtbjtarvbslbf.supabase.co';
-const SUPABASE_ANON = window.SUPABASE_ANON || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJxZG9ub3J2dGJqdGFydmJzbGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NDU5MDYsImV4cCI6MjEwNDMyMTkwNn0.NlU7z8MxyHexZ5WDImpGBqUqbl_2iUp0Z5hs4rWEBiU';
+const SUPABASE_URL = window.SUPABASE_URL || 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON = window.SUPABASE_ANON || 'YOUR_SUPABASE_ANON_KEY';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 let selectedRole = 'student';
@@ -223,10 +218,6 @@ async function doRegister() {
   showMsg('regMsg', '✅ Account created! Check your email to verify, then sign in.', false);
 }
 
-function doDemo() {
-  sessionStorage.setItem('jade_demo', '1');
-  window.location.href = '/app.html';
-}
 
 // Enter key support
 document.addEventListener('keydown', e => {
